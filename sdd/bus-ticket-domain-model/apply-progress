@@ -1,0 +1,47 @@
+## Implementation Progress
+
+**Change**: bus-ticket-domain-model
+**Mode**: Strict TDD
+
+### Completed Tasks
+- [x] 1.1 Remove/ignore non-model expectations for this change scope.
+- [x] 1.2 Confirm feature/domain hierarchy under `com/buses/examen/Progra/<feature>/domain` (+ `config/` present, no new behavior added).
+- [x] 2.1 Ensure exact 14 JPA entities exist with stable IDs/core fields.
+- [x] 2.2 Ensure required enums are persisted with `EnumType.STRING`.
+- [x] 2.3 Validate mandatory cardinalities and optional links (`ReservaAsiento->Ticket`, `MovimientoPuntos->Compra`).
+- [x] 3.1 Verify unique constraints including duplicate ticket code and duplicate active seat reservation rejection.
+- [x] 3.2 Verify invariant helpers: max 5 tickets, immutable ticket code, no CVV persistence, 7-day window invariant.
+- [x] 4.1 Add/adjust `@DataJpaTest` coverage for mappings and constraints.
+- [x] 4.2 Keep/add focused domain tests for invariants and RoutePlannerPort seam.
+- [x] 4.3 Keep repository usage only for mapping tests; no web/service orchestration additions.
+
+### Files Changed (this batch)
+| File | Action | What Was Done |
+|---|---|---|
+| `src/test/java/com/buses/examen/Progra/sales/domain/BusTicketDomainModelContractTest.java` | Modified | Replaced invalid `Map.of(...)` (14 entries) with `Map.ofEntries(...)` in reflection fixture. |
+| `src/test/java/com/buses/examen/Progra/sales/domain/BusTicketJpaMappingTest.java` | Modified | Added DB-level duplicate rejection tests for `ticket.codigo_ticket` and `reserva_asiento(servicio,asiento,estado)` with `@DataJpaTest`. |
+| `openspec/changes/bus-ticket-domain-model/tasks.md` | Modified | Marked model-only tasks complete (`[x]`). |
+| `sdd/bus-ticket-domain-model/apply-progress` | Added | Persisted merged strict-TDD apply progress for hybrid artifact store. |
+
+### TDD Cycle Evidence
+| Task | Test File | Layer | Safety Net | RED | GREEN | TRIANGULATE | REFACTOR |
+|---|---|---|---|---|---|---|---|
+| Pre-existing compile blocker fix | `BusTicketDomainModelContractTest` | Unit | ✅ Baseline detected compilation failure | ✅ Mechanical failing fixture identified first | ✅ Compiles/passes after `Map.ofEntries` | ➖ Structural fix only | ➖ None needed |
+| 3.1 duplicate constraints proof | `BusTicketJpaMappingTest` | Integration (`@DataJpaTest`) | ✅ Existing mapping test baseline ran first | ✅ Added failing duplicate-key tests | ✅ Targeted test run passes | ✅ Two paths: duplicate ticket code + duplicate active seat | ✅ Extracted shared fixture helper (`BaseGraph`) |
+
+### Test Summary
+- **Targeted**: `./mvnw.cmd test "-Dtest=BusTicketDomainModelContractTest,BusTicketJpaMappingTest"` → **11 tests, 0 failures, 0 errors**.
+- **Full suite**: `./mvnw.cmd test` → **12 tests, 0 failures, 0 errors**.
+- **Java override used**: `JAVA_HOME=C:\Program Files\Java\jdk-25.0.2` and PATH prefixed with `%JAVA_HOME%\bin`.
+
+### Deviations from Design
+None — changes stayed model-only and focused on domain/persistence verification.
+
+### Issues Found
+- Java `Map.of(...)` max entries limit caused pre-existing test compile failure; fixed mechanically with `Map.ofEntries(...)`.
+
+### Remaining Tasks
+- [ ] None.
+
+### Status
+All model-only tasks complete. Ready for verify.
