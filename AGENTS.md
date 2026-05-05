@@ -31,12 +31,12 @@
 
 - Use Hexagonal Architecture (Ports and Adapters), organized by feature/domain under `src/main/java/com/buses/examen/Progra/<feature>/`, not by global layers.
 - Dependency rule: `domain` is the center and must not depend on web, Spring Security, PDF, persistence adapters, or controllers.
-- Expected feature folders: `domain/`, `application/port/in/`, `application/port/out/`, `application/`, `adapter/in/web/`, `adapter/out/persistence/`, `adapter/out/pdf/`, `exception/`; shared wiring belongs in `config/`.
+- Expected feature folders: `domain/`, `application/port/in/`, `application/port/out/`, `application/`, `adapter/in/web/`, `adapter/out/persistence/`, `adapter/out/pdf/`, `adapter/out/security/`, `exception/`; shared wiring belongs in `config/`.
 - Model-only changes may stay limited to `domain/` plus focused tests; do not introduce controllers/services/security/PDF when the scope is only the model.
 - Controllers are inbound web adapters and should expose DTOs, not JPA entities. Application services own use-case orchestration and transaction boundaries.
 - Repositories exposed to application logic should be ports; Spring Data/JPA repositories are outbound adapter details.
 - This service includes Spring Security and OAuth2 Authorization Server dependencies; new endpoints need explicit security consideration.
-- The assignment requires sessions for registered users. Do not disable CSRF globally for browser/session flows; if using stateless API security, document and enforce it explicitly.
+- The assignment requires sessions for registered users. Do not replace this with token-only/stateless authentication, and do not disable CSRF globally for browser/session flows.
 - PDF generation must be behind an outbound port; concrete PDF libraries belong in an adapter.
 - Choose one preload strategy per change (`data.sql`, migration tool, or initializer). Do not keep duplicate seed sources.
 
@@ -48,6 +48,7 @@
   - `adapter/in/web`: controllers and web DTOs; input validation only, not business rule ownership.
   - `adapter/out/persistence`: Spring Data/JPA adapters and mapping details.
   - `adapter/out/pdf`: concrete PDF receipt generation.
+  - `adapter/out/security`: feature-specific session/security adapter details when needed.
   - `config`: Spring wiring and security/session/OAuth2 configuration.
 - Keep code clean: small cohesive classes, short intention-revealing methods, clear domain names, named constants for business limits, and no duplicated business rules.
 - Avoid generic `Manager`/`Helper`/`Processor` names unless they describe a real domain concept. Prefer assignment language such as `Compra`, `Ticket`, `Servicio`, `Ruta`, and `Cliente`.
