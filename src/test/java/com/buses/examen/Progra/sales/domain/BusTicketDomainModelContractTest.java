@@ -1,7 +1,6 @@
 package com.buses.examen.Progra.sales.domain;
 
 import com.buses.examen.Progra.customer.domain.Cliente;
-import com.buses.examen.Progra.customer.domain.MarcaTarjeta;
 import com.buses.examen.Progra.customer.domain.Tarjeta;
 import com.buses.examen.Progra.fleet.domain.Asiento;
 import com.buses.examen.Progra.fleet.domain.Bus;
@@ -33,9 +32,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 /** Verifica contratos de dominio del modelo bus-ticket: invariantes, campos y excepciones. */
 class BusTicketDomainModelContractTest {
 
-    /** Verifica que las 14 entidades JPA exponen exactamente los campos de dominio requeridos. */
+    /** Verifica que las 14 entidades JPA exponen los campos de dominio requeridos. */
     @Test
-    void shouldExposeExactMandatoryEntitySetAndCoreFields() {
+    void shouldExposeMandatoryEntitySetAndRequiredCoreFields() {
         final Map<Class<?>, Set<String>> entityFields = Map.ofEntries(
                 Map.entry(Cliente.class, Set.of("id", "nombres", "apellidos", "documentoIdentidad", "email", "telefono", "puntosAcumulados", "activo")),
                 Map.entry(Tarjeta.class, Set.of("id", "cliente", "titular", "marca", "ultimo4", "mesExpiracion", "anioExpiracion", "tokenReferencia", "enmascarada", "activa")),
@@ -112,9 +111,9 @@ class BusTicketDomainModelContractTest {
                 .hasMessageContaining("Maximo 5 tickets");
     }
 
-    /** Verifica que un servicio dentro de 7 días es válido y uno más allá lanza PurchaseWindowExpiredException. */
+    /** Verifica la ventana de compra inclusiva [fechaCompra, fechaCompra+7d]. */
     @Test
-    void shouldAllowSevenDayBoundaryAndRejectAfterBoundary() {
+    void shouldEnforceInclusivePurchaseWindowBounds() {
         final Pais pais = new Pais("PE", "Peru");
         final Ciudad lima = new Ciudad(pais, "Lima", "LIM");
         final Ciudad cusco = new Ciudad(pais, "Cusco", "CUS");
@@ -126,12 +125,19 @@ class BusTicketDomainModelContractTest {
         final Cliente cliente = new Cliente("Ana", "Perez", "12345678", "ana@mail.com", "999999999");
         final Compra compra = new Compra(cliente, null, CanalCompra.WEB, "op-1", purchaseTime);
 
-        final Servicio allowed = new Servicio(ruta, bus, purchaseTime.plusDays(7), purchaseTime.plusDays(7).plusHours(2), 50.0, EstadoServicio.PROGRAMADO, 40);
+        final Servicio beforePurchase = new Servicio(ruta, bus, purchaseTime.minusMinutes(1), purchaseTime.plusHours(2), 50.0, EstadoServicio.PROGRAMADO, 40);
+        final Servicio allowedAtLowerBound = new Servicio(ruta, bus, purchaseTime, purchaseTime.plusHours(2), 50.0, EstadoServicio.PROGRAMADO, 40);
+        final Servicio allowedAtUpperBound = new Servicio(ruta, bus, purchaseTime.plusDays(7), purchaseTime.plusDays(7).plusHours(2), 50.0, EstadoServicio.PROGRAMADO, 40);
         final Servicio denied = new Servicio(ruta, bus, purchaseTime.plusDays(8), purchaseTime.plusDays(8).plusHours(2), 50.0, EstadoServicio.PROGRAMADO, 40);
 
-        final Ticket ticket = Ticket.emitir(compra, allowed, cliente, asiento, "TKT-ALLOW", 50.0);
+        final Ticket lowerBoundTicket = Ticket.emitir(compra, allowedAtLowerBound, cliente, asiento, "TKT-ALLOW-LOW", 50.0);
+        final Ticket upperBoundTicket = Ticket.emitir(compra, allowedAtUpperBound, cliente, asiento, "TKT-ALLOW-UP", 50.0);
 
-        assertThat(ticket).isNotNull();
+        assertThatThrownBy(() -> Ticket.emitir(compra, beforePurchase, cliente, asiento, "TKT-BEFORE", 50.0))
+                .isInstanceOf(PurchaseWindowExpiredException.class)
+                .hasMessageContaining("7 dias");
+        assertThat(lowerBoundTicket).isNotNull();
+        assertThat(upperBoundTicket).isNotNull();
         assertThatThrownBy(() -> Ticket.emitir(compra, denied, cliente, asiento, "TKT-DENY", 50.0))
                 .isInstanceOf(PurchaseWindowExpiredException.class)
                 .hasMessageContaining("7 dias");

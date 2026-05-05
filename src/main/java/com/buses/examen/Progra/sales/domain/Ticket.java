@@ -39,11 +39,13 @@ public class Ticket {
      * @param codigoTicket  código único del ticket
      * @param precioFinal   precio cobrado al pasajero
      * @return ticket emitido
-     * @throws PurchaseWindowExpiredException si el servicio está más allá de los 7 días desde la compra
+     * @throws PurchaseWindowExpiredException si el servicio está fuera de la ventana [fechaCompra, fechaCompra+7d]
      */
-    public static Ticket emitir(final Compra compra, final Servicio servicio, final Cliente cliente,
-                                final Asiento asiento, final String codigoTicket, final double precioFinal) {
-        if (servicio.getSalidaProgramada().isAfter(compra.getFechaCompra().plusDays(7))) {
+    public static Ticket emitir(@NonNull final Compra compra, @NonNull final Servicio servicio,
+                                @NonNull final Cliente cliente, @NonNull final Asiento asiento,
+                                @NonNull final String codigoTicket, final double precioFinal) {
+        if (servicio.getSalidaProgramada().isBefore(compra.getFechaCompra())
+                || servicio.getSalidaProgramada().isAfter(compra.getFechaCompra().plusDays(7))) {
             throw new PurchaseWindowExpiredException();
         }
         final Ticket ticket = new Ticket();
@@ -69,7 +71,7 @@ public class Ticket {
      * @param nuevoCodigo valor ignorado
      * @throws TicketCodigoInmutableException siempre
      */
-    public void actualizarCodigoTicket(final String nuevoCodigo) {
+    public void actualizarCodigoTicket(@NonNull final String nuevoCodigo) {
         throw new TicketCodigoInmutableException();
     }
 }
