@@ -48,21 +48,23 @@ Estos son los servicios base del enunciado para precargar y validar rutas, horar
     </tr>
   </thead>
   <tbody>
-    <tr><td><strong>CR-NI</strong></td><td><strong>3 AM</strong></td><td><strong>$80</strong></td></tr>
-    <tr><td><strong>CR-ES</strong></td><td><strong>6 AM</strong></td><td><strong>$120</strong></td></tr>
-    <tr><td><strong>CR-GUA</strong></td><td><strong>6 AM</strong></td><td><strong>$140</strong></td></tr>
-    <tr><td><strong>CR-NI</strong></td><td><strong>6 AM</strong></td><td><strong>$80</strong></td></tr>
-    <tr><td><strong>CR-HN</strong></td><td><strong>6 AM</strong></td><td><strong>$110</strong></td></tr>
-    <tr><td><strong>CR-PN</strong></td><td><strong>5 AM</strong></td><td><strong>$80</strong></td></tr>
-    <tr><td><strong>PN-CR</strong></td><td><strong>8 AM</strong></td><td><strong>$80</strong></td></tr>
-    <tr><td><strong>GUA-CR</strong></td><td><strong>5 AM</strong></td><td><strong>$140</strong></td></tr>
-    <tr><td><strong>GUA-ES</strong></td><td><strong>5 AM</strong></td><td><strong>$80</strong></td></tr>
-    <tr><td><strong>GUA-HN</strong></td><td><strong>5 AM</strong></td><td><strong>$110</strong></td></tr>
-    <tr><td><strong>GUA-NI</strong></td><td><strong>5 AM</strong></td><td><strong>$120</strong></td></tr>
-    <tr><td><strong>NI-CR</strong></td><td><strong>3 AM</strong></td><td><strong>$80</strong></td></tr>
-    <tr><td><strong>NI-CR</strong></td><td><strong>6 AM</strong></td><td><strong>$80</strong></td></tr>
+    <tr><td><strong>🇨🇷 CR → 🇳🇮 NI</strong></td><td><strong>3 AM</strong></td><td><strong>$80</strong></td></tr>
+    <tr><td><strong>🇨🇷 CR → 🇸🇻 ES</strong></td><td><strong>6 AM</strong></td><td><strong>$120</strong></td></tr>
+    <tr><td><strong>🇨🇷 CR → 🇬🇹 GUA</strong></td><td><strong>6 AM</strong></td><td><strong>$140</strong></td></tr>
+    <tr><td><strong>🇨🇷 CR → 🇳🇮 NI</strong></td><td><strong>6 AM</strong></td><td><strong>$80</strong></td></tr>
+    <tr><td><strong>🇨🇷 CR → 🇭🇳 HN</strong></td><td><strong>6 AM</strong></td><td><strong>$110</strong></td></tr>
+    <tr><td><strong>🇨🇷 CR → 🇵🇦 PN</strong></td><td><strong>5 AM</strong></td><td><strong>$80</strong></td></tr>
+    <tr><td><strong>🇵🇦 PN → 🇨🇷 CR</strong></td><td><strong>8 AM</strong></td><td><strong>$80</strong></td></tr>
+    <tr><td><strong>🇬🇹 GUA → 🇨🇷 CR</strong></td><td><strong>5 AM</strong></td><td><strong>$140</strong></td></tr>
+    <tr><td><strong>🇬🇹 GUA → 🇸🇻 ES</strong></td><td><strong>5 AM</strong></td><td><strong>$80</strong></td></tr>
+    <tr><td><strong>🇬🇹 GUA → 🇭🇳 HN</strong></td><td><strong>5 AM</strong></td><td><strong>$110</strong></td></tr>
+    <tr><td><strong>🇬🇹 GUA → 🇳🇮 NI</strong></td><td><strong>5 AM</strong></td><td><strong>$120</strong></td></tr>
+    <tr><td><strong>🇳🇮 NI → 🇨🇷 CR</strong></td><td><strong>3 AM</strong></td><td><strong>$80</strong></td></tr>
+    <tr><td><strong>🇳🇮 NI → 🇨🇷 CR</strong></td><td><strong>6 AM</strong></td><td><strong>$80</strong></td></tr>
   </tbody>
 </table>
+
+> Leyenda: CR = Costa Rica, NI = Nicaragua, ES = El Salvador, GUA = Guatemala, HN = Honduras, PN = Panamá.
 
 ---
 
