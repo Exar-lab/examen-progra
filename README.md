@@ -35,6 +35,37 @@ El diseño del proyecto sigue **Arquitectura Hexagonal (Ports and Adapters)** pa
 
 ---
 
+## 🕒 Horarios y rutas de referencia
+
+Estos son los servicios base del enunciado para precargar y validar rutas, horarios y precios:
+
+<table>
+  <thead>
+    <tr>
+      <th align="center">Ruta</th>
+      <th align="center">Horario</th>
+      <th align="center">Precio</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>CR-NI</strong></td><td><strong>3 AM</strong></td><td><strong>$80</strong></td></tr>
+    <tr><td><strong>CR-ES</strong></td><td><strong>6 AM</strong></td><td><strong>$120</strong></td></tr>
+    <tr><td><strong>CR-GUA</strong></td><td><strong>6 AM</strong></td><td><strong>$140</strong></td></tr>
+    <tr><td><strong>CR-NI</strong></td><td><strong>6 AM</strong></td><td><strong>$80</strong></td></tr>
+    <tr><td><strong>CR-HN</strong></td><td><strong>6 AM</strong></td><td><strong>$110</strong></td></tr>
+    <tr><td><strong>CR-PN</strong></td><td><strong>5 AM</strong></td><td><strong>$80</strong></td></tr>
+    <tr><td><strong>PN-CR</strong></td><td><strong>8 AM</strong></td><td><strong>$80</strong></td></tr>
+    <tr><td><strong>GUA-CR</strong></td><td><strong>5 AM</strong></td><td><strong>$140</strong></td></tr>
+    <tr><td><strong>GUA-ES</strong></td><td><strong>5 AM</strong></td><td><strong>$80</strong></td></tr>
+    <tr><td><strong>GUA-HN</strong></td><td><strong>5 AM</strong></td><td><strong>$110</strong></td></tr>
+    <tr><td><strong>GUA-NI</strong></td><td><strong>5 AM</strong></td><td><strong>$120</strong></td></tr>
+    <tr><td><strong>NI-CR</strong></td><td><strong>3 AM</strong></td><td><strong>$80</strong></td></tr>
+    <tr><td><strong>NI-CR</strong></td><td><strong>6 AM</strong></td><td><strong>$80</strong></td></tr>
+  </tbody>
+</table>
+
+---
+
 ## 🧾 Enunciado resumido
 
 - Una empresa de buses de Centroamérica, con sede en Costa Rica, necesita un sistema de venta de pasajes.
