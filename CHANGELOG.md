@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.0.2](https://github.com/Exar-lab/examen-progra/compare/v1.0.1...v1.0.2) (2026-05-05)
+
+
+### Documentation
+
+* add country flags to routes ([b1819da](https://github.com/Exar-lab/examen-progra/commit/b1819da7455324d813a90a350f9a0d2edc51efc3))
+* add project readme ([07909de](https://github.com/Exar-lab/examen-progra/commit/07909de1804456da252b9cd0d9db3edb73d635be))
+* add route schedule reference ([d1e11b6](https://github.com/Exar-lab/examen-progra/commit/d1e11b6b90aee3adfd8ba474105a957c945030c8))
+
 ## [1.0.1](https://github.com/Exar-lab/examen-progra/compare/v1.0.0...v1.0.1) (2026-05-05)
 
 
