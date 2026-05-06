@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/Exar-lab/examen-progra/compare/v1.0.2...v1.1.0) (2026-05-06)
+
+
+### Features
+
+* implement bus ticket domain model ([ffb62f3](https://github.com/Exar-lab/examen-progra/commit/ffb62f3df87fd1ecc1a2d55434d2120e0c237181))
+
 ## [1.0.2](https://github.com/Exar-lab/examen-progra/compare/v1.0.1...v1.0.2) (2026-05-05)
 
 
