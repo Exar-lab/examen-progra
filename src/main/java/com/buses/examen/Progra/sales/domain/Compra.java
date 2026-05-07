@@ -24,7 +24,7 @@ public class Compra {
     @ManyToOne(fetch = FetchType.LAZY, optional = false) @JoinColumn(name = "cliente_id", nullable = false) private Cliente cliente;
     @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "tarjeta_id") private Tarjeta tarjeta;
     @Column(name = "fecha_compra", nullable = false) private OffsetDateTime fechaCompra;
-    @Column(nullable = false) private BigDecimal total = BigDecimal.ZERO;
+    @Column(nullable = false, precision = 10, scale = 2) private BigDecimal total = BigDecimal.ZERO;
     @Enumerated(EnumType.STRING) @Column(nullable = false) private EstadoCompra estado = EstadoCompra.PENDIENTE;
     @Enumerated(EnumType.STRING) @Column(nullable = false) private CanalCompra canal;
     @Column(name = "codigo_operacion_externa") private String codigoOperacionExterna;

@@ -24,7 +24,7 @@ public class Ticket {
     @ManyToOne(fetch = FetchType.LAZY, optional = false) @JoinColumn(name = "cliente_id", nullable = false) private Cliente cliente;
     @ManyToOne(fetch = FetchType.LAZY, optional = false) @JoinColumn(name = "asiento_id", nullable = false) private Asiento asiento;
     @Column(name = "codigo_ticket", nullable = false, updatable = false) private String codigoTicket;
-    @Column(name = "precio_final", nullable = false) private BigDecimal precioFinal = BigDecimal.ZERO;
+    @Column(name = "precio_final", nullable = false, precision = 10, scale = 2) private BigDecimal precioFinal = BigDecimal.ZERO;
     @Enumerated(EnumType.STRING) @Column(nullable = false) private EstadoTicket estado = EstadoTicket.EMITIDO;
     @Column(name = "fecha_emision", nullable = false) private OffsetDateTime fechaEmision = OffsetDateTime.now();
 

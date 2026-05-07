@@ -24,7 +24,7 @@ public class Comprobante {
     @Column(nullable = false) private String serie = DEFAULT_SERIE;
     @Column(nullable = false) private String numero = DEFAULT_NUMERO;
     @Column(name = "fecha_emision", nullable = false) private OffsetDateTime fechaEmision = OffsetDateTime.now();
-    @Column(name = "monto_total", nullable = false) private BigDecimal montoTotal = BigDecimal.ZERO;
+    @Column(name = "monto_total", nullable = false, precision = 10, scale = 2) private BigDecimal montoTotal = BigDecimal.ZERO;
     @Column(nullable = false) private String moneda = DEFAULT_MONEDA;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false) private EstadoComprobante estado = EstadoComprobante.EMITIDO;
