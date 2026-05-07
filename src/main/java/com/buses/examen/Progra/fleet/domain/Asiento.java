@@ -41,4 +41,11 @@ public class Asiento {
      * @return id generado por la base de datos
      */
     public Long getId() { return id; }
+
+    /**
+     * Devuelve el identificador del bus propietario del asiento.
+     *
+     * @return id del bus asociado
+     */
+    public Long getBusId() { return bus.getId(); }
 }
