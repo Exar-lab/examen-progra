@@ -80,7 +80,7 @@ class RepositoryAdaptersDataJpaTest {
     /** Verifica que el adaptador de cliente consulta por email y pasaporte. */
     @Test
     public void shouldFindCustomerByEmailAndPassport() {
-        final Cliente cliente = new Cliente("Juan", "Perez", "P-123", "juan@mail.com", "999");
+        final Cliente cliente = new Cliente("Juan", "Perez", "P-123", "CR", "juan@mail.com", "999");
         entityManager.persist(cliente);
         entityManager.flush();
 
@@ -201,12 +201,12 @@ class RepositoryAdaptersDataJpaTest {
                 bus,
                 OffsetDateTime.now().plusDays(1),
                 OffsetDateTime.now().plusDays(1).plusHours(4),
-                30,
+                BigDecimal.valueOf(30),
                 EstadoServicio.PROGRAMADO,
                 40
         );
         entityManager.persist(servicio);
-        final Cliente cliente = new Cliente("Ana", "Rojas", "P-999", "ana@mail.com", "888");
+        final Cliente cliente = new Cliente("Ana", "Rojas", "P-999", "CR", "ana@mail.com", "888");
         entityManager.persist(cliente);
         final Tarjeta tarjeta = Tarjeta.fromGatewayToken(cliente, "Ana Rojas", "VISA", "1111", 12, 2030, "tok-1", "4111******1111", "999");
         entityManager.persist(tarjeta);
@@ -229,7 +229,7 @@ class RepositoryAdaptersDataJpaTest {
                 graph.bus,
                 OffsetDateTime.now().plusHours(3),
                 OffsetDateTime.now().plusHours(6),
-                25,
+                BigDecimal.valueOf(25),
                 EstadoServicio.PROGRAMADO,
                 40
         );
@@ -238,7 +238,7 @@ class RepositoryAdaptersDataJpaTest {
                 graph.bus,
                 OffsetDateTime.now().plusDays(3),
                 OffsetDateTime.now().plusDays(3).plusHours(2),
-                25,
+                BigDecimal.valueOf(25),
                 EstadoServicio.PROGRAMADO,
                 40
         );

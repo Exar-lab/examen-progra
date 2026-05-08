@@ -1,20 +1,20 @@
 package com.buses.examen.Progra.adapter.in.web;
 
-import com.buses.examen.Progra.customer.adapter.in.web.CustomerWebAdapter;
+import com.buses.examen.Progra.customer.adapter.in.web.CustomerController;
 import com.buses.examen.Progra.customer.application.CustomerService;
 import com.buses.examen.Progra.customer.domain.Cliente;
-import com.buses.examen.Progra.fleet.adapter.in.web.FleetWebAdapter;
+import com.buses.examen.Progra.fleet.adapter.in.web.FleetController;
 import com.buses.examen.Progra.fleet.application.FleetService;
 import com.buses.examen.Progra.fleet.domain.Bus;
-import com.buses.examen.Progra.geography.adapter.in.web.GeographyWebAdapter;
+import com.buses.examen.Progra.geography.adapter.in.web.GeographyController;
 import com.buses.examen.Progra.geography.application.GeographyService;
 import com.buses.examen.Progra.geography.domain.Pais;
-import com.buses.examen.Progra.loyalty.adapter.in.web.LoyaltyWebAdapter;
+import com.buses.examen.Progra.loyalty.adapter.in.web.LoyaltyController;
 import com.buses.examen.Progra.loyalty.application.LoyaltyService;
-import com.buses.examen.Progra.route.adapter.in.web.RouteWebAdapter;
+import com.buses.examen.Progra.route.adapter.in.web.RouteController;
 import com.buses.examen.Progra.route.application.RouteService;
 import com.buses.examen.Progra.route.domain.Ruta;
-import com.buses.examen.Progra.service.adapter.in.web.ServiceWebAdapter;
+import com.buses.examen.Progra.service.adapter.in.web.ServiceController;
 import com.buses.examen.Progra.service.application.ServiceService;
 import com.buses.examen.Progra.service.domain.Servicio;
 import org.junit.jupiter.api.Test;
@@ -31,12 +31,12 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class WebAdapterHexagonalBoundaryTest {
     private static final List<Class<?>> WEB_ADAPTERS = List.of(
-            CustomerWebAdapter.class,
-            GeographyWebAdapter.class,
-            FleetWebAdapter.class,
-            RouteWebAdapter.class,
-            ServiceWebAdapter.class,
-            LoyaltyWebAdapter.class
+            CustomerController.class,
+            GeographyController.class,
+            FleetController.class,
+            RouteController.class,
+            ServiceController.class,
+            LoyaltyController.class
     );
 
     private static final List<Class<?>> APPLICATION_SERVICES = List.of(

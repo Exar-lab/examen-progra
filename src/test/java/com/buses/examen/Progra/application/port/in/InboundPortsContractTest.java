@@ -2,8 +2,10 @@ package com.buses.examen.Progra.application.port.in;
 
 import com.buses.examen.Progra.customer.application.port.in.CustomerQueryUseCase;
 import com.buses.examen.Progra.customer.application.port.in.RegisterCustomerUseCase;
-import com.buses.examen.Progra.customer.domain.Cliente;
-import com.buses.examen.Progra.customer.domain.Tarjeta;
+import com.buses.examen.Progra.customer.application.command.RegisterCardCommand;
+import com.buses.examen.Progra.customer.application.command.RegisterCustomerCommand;
+import com.buses.examen.Progra.customer.application.result.RegisterCardResult;
+import com.buses.examen.Progra.customer.application.result.RegisterCustomerResult;
 import com.buses.examen.Progra.fleet.application.port.in.FleetQueryUseCase;
 import com.buses.examen.Progra.geography.application.port.in.GeographyQueryUseCase;
 import com.buses.examen.Progra.loyalty.application.port.in.LoyaltyQueryUseCase;
@@ -24,41 +26,36 @@ import static org.assertj.core.api.Assertions.assertThat;
 /** Verifica que los puertos de entrada definidos exponen sus contratos públicos. */
 class InboundPortsContractTest {
 
-    /** Verifica contratos de registro y consulta de clientes. */
+    /**
+     * Verifica contratos de registro y consulta de clientes.
+     *
+     * @throws NoSuchMethodException si algún método del contrato no existe
+     */
     @Test
     void shouldExposeCustomerInboundPorts() throws NoSuchMethodException {
         assertThat(RegisterCustomerUseCase.class.isInterface()).isTrue();
         final Method register = RegisterCustomerUseCase.class.getMethod(
                 "register",
-                String.class,
-                String.class,
-                String.class,
-                String.class,
-                String.class,
-                String.class
+                RegisterCustomerCommand.class
         );
-        assertThat(register.getReturnType()).isEqualTo(Cliente.class);
+        assertThat(register.getReturnType()).isEqualTo(RegisterCustomerResult.class);
 
         final Method registerCard = RegisterCustomerUseCase.class.getMethod(
                 "registerCard",
-                Long.class,
-                String.class,
-                String.class,
-                String.class,
-                int.class,
-                int.class,
-                String.class,
-                String.class,
-                String.class
+                RegisterCardCommand.class
         );
-        assertThat(registerCard.getReturnType()).isEqualTo(Tarjeta.class);
+        assertThat(registerCard.getReturnType()).isEqualTo(RegisterCardResult.class);
 
         assertThat(CustomerQueryUseCase.class.isInterface()).isTrue();
         final Method findByPassport = CustomerQueryUseCase.class.getMethod("findByDocumentoIdentidad", String.class);
         assertThat(findByPassport.getReturnType()).isEqualTo(Optional.class);
     }
 
-    /** Verifica contratos de consulta para geografía, flota, rutas, servicios y lealtad. */
+    /**
+     * Verifica contratos de consulta para geografía, flota, rutas, servicios y lealtad.
+     *
+     * @throws NoSuchMethodException si algún método del contrato no existe
+     */
     @Test
     void shouldExposeCatalogQueryPorts() throws NoSuchMethodException {
         assertThat(GeographyQueryUseCase.class.isInterface()).isTrue();
@@ -87,7 +84,11 @@ class InboundPortsContractTest {
         assertThat(LoyaltyQueryUseCase.class.getMethod("listHistory", Long.class).getReturnType()).isEqualTo(List.class);
     }
 
-    /** Verifica contrato de compra de tickets. */
+    /**
+     * Verifica contrato de compra de tickets.
+     *
+     * @throws NoSuchMethodException si el método del contrato no existe
+     */
     @Test
     void shouldExposePurchaseTicketsUseCase() throws NoSuchMethodException {
         assertThat(PurchaseTicketsUseCase.class.isInterface()).isTrue();

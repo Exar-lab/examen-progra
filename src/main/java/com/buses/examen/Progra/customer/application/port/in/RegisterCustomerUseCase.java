@@ -1,7 +1,10 @@
 package com.buses.examen.Progra.customer.application.port.in;
 
-import com.buses.examen.Progra.customer.domain.Cliente;
-import com.buses.examen.Progra.customer.domain.Tarjeta;
+import com.buses.examen.Progra.customer.application.command.RegisterCardCommand;
+import com.buses.examen.Progra.customer.application.command.RegisterCustomerCommand;
+import com.buses.examen.Progra.customer.application.result.RegisterCardResult;
+import com.buses.examen.Progra.customer.application.result.RegisterCustomerResult;
+import com.buses.examen.Progra.customer.exception.ClienteNoEncontradoException;
 
 /**
  * Puerto de entrada para registrar clientes y sus medios de pago.
@@ -10,32 +13,17 @@ public interface RegisterCustomerUseCase {
     /**
      * Registra un nuevo cliente con sus datos básicos.
      *
-     * @param nombres            nombres del cliente
-     * @param apellidos          apellidos del cliente
-     * @param documentoIdentidad documento de identidad o pasaporte
-     * @param nacionalidad       nacionalidad del cliente
-     * @param email              correo electrónico del cliente
-     * @param telefono           teléfono de contacto
+     * @param command datos de registro de cliente
      * @return cliente registrado
      */
-    Cliente register(String nombres, String apellidos, String documentoIdentidad,
-                     String nacionalidad, String email, String telefono);
+    RegisterCustomerResult register(RegisterCustomerCommand command);
 
     /**
      * Registra una tarjeta para un cliente existente.
      *
-     * @param clienteId       identificador del cliente
-     * @param titular         nombre del titular en la tarjeta
-     * @param marca           marca de la tarjeta (VISA, MASTERCARD, etc.)
-     * @param ultimo4         últimos cuatro dígitos
-     * @param mesExpiracion   mes de expiración
-     * @param anioExpiracion  año de expiración
-     * @param tokenReferencia token opaco de la pasarela
-     * @param enmascarada     representación enmascarada del PAN
-     * @param cvv             CVV de sesión
+     * @param command datos de registro de tarjeta
      * @return tarjeta registrada
+     * @throws ClienteNoEncontradoException cuando el cliente indicado no existe
      */
-    Tarjeta registerCard(Long clienteId, String titular, String marca, String ultimo4,
-                         int mesExpiracion, int anioExpiracion, String tokenReferencia,
-                         String enmascarada, String cvv);
+    RegisterCardResult registerCard(RegisterCardCommand command);
 }

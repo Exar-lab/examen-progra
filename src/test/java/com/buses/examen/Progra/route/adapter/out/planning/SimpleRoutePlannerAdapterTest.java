@@ -9,9 +9,11 @@ import com.buses.examen.Progra.service.application.port.out.ServicioRepositoryPo
 import com.buses.examen.Progra.service.domain.EstadoServicio;
 import com.buses.examen.Progra.service.domain.Servicio;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,6 +23,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Pruebas del adaptador básico de planificación de rutas.
  */
 class SimpleRoutePlannerAdapterTest {
+
+    private static long nextId = 1L;
 
     @Test
     void shouldReturnFutureServicesOrderedByCapacityScore() {
@@ -50,7 +54,10 @@ class SimpleRoutePlannerAdapterTest {
         final Ruta route = new Ruta(origin, destination, 480, 850);
         final Compania company = new Compania("Central Bus", "CB-1");
         final Bus bus = new Bus(company, "BUS-1", "Volvo", 60);
-        return new Servicio(route, bus, departure, departure.plusHours(8), 100, EstadoServicio.PROGRAMADO, capacity);
+        final Servicio service = new Servicio(route, bus, departure, departure.plusHours(8), BigDecimal.valueOf(100), EstadoServicio.PROGRAMADO, capacity);
+        ReflectionTestUtils.setField(route, "id", nextId++);
+        ReflectionTestUtils.setField(service, "id", nextId++);
+        return service;
     }
 
     private ServicioRepositoryPort repositoryWith(final Servicio... services) {

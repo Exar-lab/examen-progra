@@ -4,8 +4,13 @@ import com.buses.examen.Progra.customer.application.port.in.CustomerQueryUseCase
 import com.buses.examen.Progra.customer.application.port.in.RegisterCustomerUseCase;
 import com.buses.examen.Progra.customer.application.port.out.ClienteRepositoryPort;
 import com.buses.examen.Progra.customer.application.port.out.TarjetaRepositoryPort;
+import com.buses.examen.Progra.customer.application.command.RegisterCardCommand;
+import com.buses.examen.Progra.customer.application.command.RegisterCustomerCommand;
+import com.buses.examen.Progra.customer.application.result.RegisterCardResult;
+import com.buses.examen.Progra.customer.application.result.RegisterCustomerResult;
 import com.buses.examen.Progra.customer.domain.Cliente;
 import com.buses.examen.Progra.customer.domain.Tarjeta;
+import com.buses.examen.Progra.customer.exception.ClienteNoEncontradoException;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -32,22 +37,23 @@ public class CustomerService implements RegisterCustomerUseCase, CustomerQueryUs
 
     /** {@inheritDoc} */
     @Override
-    public Cliente register(final String nombres, final String apellidos, final String documentoIdentidad,
-                            final String nacionalidad, final String email, final String telefono) {
-        final Cliente cliente = new Cliente(nombres, apellidos, documentoIdentidad, email, telefono);
-        return clienteRepositoryPort.save(cliente);
+    public RegisterCustomerResult register(final RegisterCustomerCommand command) {
+        final Cliente cliente = new Cliente(command.nombres(), command.apellidos(), command.documentoIdentidad(),
+                command.nacionalidad(), command.email(), command.telefono());
+        final Cliente persisted = clienteRepositoryPort.save(cliente);
+        return new RegisterCustomerResult(persisted.getId());
     }
 
     /** {@inheritDoc} */
     @Override
-    public Tarjeta registerCard(final Long clienteId, final String titular, final String marca, final String ultimo4,
-                                final int mesExpiracion, final int anioExpiracion, final String tokenReferencia,
-                                final String enmascarada, final String cvv) {
-        final Cliente cliente = clienteRepositoryPort.findById(clienteId).orElseThrow(
-                () -> new IllegalArgumentException("Cliente no encontrado"));
-        final Tarjeta tarjeta = Tarjeta.fromGatewayToken(cliente, titular, marca, ultimo4,
-                mesExpiracion, anioExpiracion, tokenReferencia, enmascarada, cvv);
-        return tarjetaRepositoryPort.save(tarjeta);
+    public RegisterCardResult registerCard(final RegisterCardCommand command) {
+        final Cliente cliente = clienteRepositoryPort.findById(command.clienteId()).orElseThrow(
+                () -> new ClienteNoEncontradoException(command.clienteId()));
+        final Tarjeta tarjeta = Tarjeta.fromGatewayToken(cliente, command.titular(), command.marca(), command.ultimo4(),
+                command.fechaExpiracion().getMonthValue(), command.fechaExpiracion().getYear(),
+                command.tokenReferencia(), command.enmascarada(), command.cvv());
+        final Tarjeta persisted = tarjetaRepositoryPort.save(tarjeta);
+        return new RegisterCardResult(persisted.getId(), persisted.getEnmascarada());
     }
 
     /** {@inheritDoc} */

@@ -33,17 +33,17 @@ Chain strategy: pending
 
 - [x] 2.1 Implement `customer/application/CustomerService.java` to handle registration, card registration, and passport lookup through ports.
 - [x] 2.2 Implement `geography`, `fleet`, `route`, `service`, and `loyalty` application services as read-only query orchestrators with constructor injection.
-- [ ] 2.3 Implement `sales/application/SalesService.java` with `@Transactional`, enforcing the 1-5 ticket limit, 7-day purchase window, seat availability, and unique ticket generation.
-- [ ] 2.4 Keep all orchestration in application services; do not leak web DTOs, Spring Data, or PDF concerns into these classes.
+- [x] 2.3 Implement `sales/application/SalesService.java` with `@Transactional`, enforcing the 1-5 ticket limit, 7-day purchase window, seat availability, and unique ticket generation.
+- [x] 2.4 Keep all orchestration in application services; do not leak web DTOs, Spring Data, or PDF concerns into these classes.
 
 ## Phase 3: Testing / Verification
 
 - [x] 3.1 Add JUnit 5 + Mockito tests for customer registration, card registration, and lookup scenarios from `customer-management/spec.md`.
 - [x] 3.2 Add focused tests for catalog query services covering route/service listing scenarios from `catalog-browsing/spec.md`.
-- [ ] 3.3 Add purchase-service tests covering success, 6-ticket rejection, 8-day rejection, insufficient seats, and unique code generation from `ticket-purchasing/spec.md`.
-- [ ] 3.4 Add wiring/slice checks for constructor injection and transaction-boundary behavior where the design calls for application-layer orchestration.
+- [x] 3.3 Add purchase-service tests covering success, 6-ticket rejection, 8-day rejection, insufficient seats, and unique code generation from `ticket-purchasing/spec.md`.
+- [x] 3.4 Add wiring/slice checks for constructor injection and transaction-boundary behavior where the design calls for application-layer orchestration.
 
 ## Phase 4: Cleanup
 
 - [x] 4.1 Add concise Javadocs to all public inbound ports and remove any temporary scaffolding created during service extraction.
-- [ ] 4.2 Verify package layout stays feature-first under `com/buses/examen/Progra/<feature>/application/` and that no adapter or controller code is introduced.
+- [x] 4.2 Verify package layout stays feature-first under `com/buses/examen/Progra/<feature>/application/` and that no adapter or controller code is introduced.

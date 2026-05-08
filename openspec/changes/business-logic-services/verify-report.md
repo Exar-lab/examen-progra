@@ -1,153 +1,145 @@
-# Verification Report — business-logic-services
+# Verification Report
 
-**Change**: business-logic-services  
-**Scope**: Re-verify ONLY slice 1 / PR 1 foundation-query-services after latest route planner adapter fix  
+**Change**: business-logic-services (slice 2: sales orchestration)  
+**Version**: N/A  
 **Mode**: Strict TDD  
-**Verifier**: openai/gpt-5.5  
+**Verified**: 2026-05-08
 
 ---
 
-## Completeness
+### Completeness
 
 | Metric | Value |
 |--------|-------|
-| Tasks total | 13 |
-| Tasks complete in artifact | 8 |
-| Tasks incomplete in artifact | 5 |
-| Incomplete but deferred to slice 2 | 2.3, 3.3 |
-| Incomplete/stale for slice 1 | 2.4, 3.4, 4.2 |
+| Tasks total | 14 |
+| Tasks complete | 14 |
+| Tasks incomplete | 0 |
 
-Slice 1 is functionally verifiable after the latest fix: inbound ports exist, query/customer application services are Spring beans, inbound web adapters exist and depend on inbound ports, persistence adapters and the new route planner adapter satisfy outbound ports, and the full application context starts. Sales orchestration remains intentionally deferred to slice 2 and is not counted as a slice-1 blocker.
+All tasks in `openspec/changes/business-logic-services/tasks.md` are checked complete.
 
 ---
 
-## Build & Tests Execution
+### Build & Tests Execution
 
-**Full test runner**: `./mvnw test`  
-**Result**: ✅ Passed
+**Build**: ✅ Passed via `./mvnw.cmd clean test` with `JAVA_HOME=C:\Program Files\Java\jdk-25.0.2`.
 
-```text
-Tests run: 48, Failures: 0, Errors: 0, Skipped: 0
-BUILD SUCCESS
-```
+**Tests**: ✅ 77 passed / ❌ 0 failed / ⚠️ 0 skipped.
 
-**Application context wiring**: ✅ Passed via `PrograApplicationTests.contextLoads`; the previous missing `RoutePlannerPort` bean blocker is resolved by `route/adapter/out/planning/SimpleRoutePlannerAdapter.java` annotated with `@Component`.
+Relevant changed-area evidence:
+- `SalesServiceTest`: 6/6 passed.
+- `SalesServiceContractTest`: 1/1 passed.
+- `CustomerServiceTest`: passed in full suite.
+- Query service tests for route/service/geography/fleet/loyalty passed in full suite.
+- Repository adapter tests passed in full suite.
 
-**Compile / type check**: ✅ Maven test lifecycle compiled main and test sources successfully.  
-**Coverage**: ➖ Not available; no JaCoCo/coverage plugin detected in `pom.xml`.  
-**Quality metrics**: ➖ No linter/static-analysis tool configured for changed files.
+**Coverage**: ➖ Not available — no JaCoCo/coverage plugin detected in `pom.xml`.
 
 ---
 
-## TDD Compliance
+### TDD Compliance
 
 | Check | Result | Details |
 |-------|--------|---------|
-| TDD Evidence reported | ✅ | `sdd/business-logic-services/apply-progress` contains a TDD Cycle Evidence table for original slice-1 tasks. |
-| All reported task tests exist | ✅ | Reported test files are present in `src/test/java`. |
-| RED confirmed | ✅ | Test files exist for reported tasks, including the newer `SimpleRoutePlannerAdapterTest`. |
-| GREEN confirmed | ✅ | Full `./mvnw test` passes: 48 tests, 0 failures/errors/skips. |
-| Triangulation adequate | ⚠️ | Customer and catalog scenarios have focused tests; the new simple planner adapter has one empty-result placeholder case only. |
-| Safety net for modified files | ⚠️ | `apply-progress` was not refreshed after the latest fixes, so it does not document the route planner adapter fix or customer not-found test addition. |
+| TDD Evidence reported | ✅ | Found `openspec/changes/business-logic-services/apply-progress.md`. |
+| All tasks have tests | ✅ | Slice-2 test file exists: `SalesServiceTest`. |
+| RED confirmed (tests exist) | ✅ | Reported test file exists. |
+| GREEN confirmed (tests pass) | ✅ | `SalesServiceTest` now passes under JDK 25. |
+| Triangulation adequate | ✅ | Success, 6-ticket rejection, 8-day rejection, insufficient seats, duplicate code collision, transaction boundary. |
+| Safety Net for modified files | ✅ | Apply-progress now records the JDK 25 GREEN result and marks the re-run validation task complete. |
 
-**TDD Compliance**: 4/6 checks passed cleanly; 2 warnings, 0 critical failures.
+**TDD Compliance**: 6/6 checks passed; process artifact is current after JDK 25 validation.
 
 ---
 
-## Test Layer Distribution
+### Test Layer Distribution
 
 | Layer | Tests | Files | Tools |
 |-------|-------|-------|-------|
-| Unit / contract | 29 | 12 | JUnit 5, Mockito, AssertJ |
-| Integration / context / JPA | 19 | 3 | Spring Boot Test, Data JPA Test, H2 |
-| E2E | 0 | 0 | Not configured |
-| **Total** | **48** | **15** | |
+| Unit | 6 | 1 | JUnit 5 + Mockito |
+| Integration | 0 | 0 | Not in this slice |
+| E2E | 0 | 0 | Not in scope |
+| **Total** | **6** | **1** | |
 
 ---
 
-## Changed File Coverage
+### Changed File Coverage
 
 Coverage analysis skipped — no coverage tool detected.
 
 ---
 
-## Assertion Quality
+### Assertion Quality
 
-| File | Line | Assertion | Issue | Severity |
-|------|------|-----------|-------|----------|
-| `src/test/java/com/buses/examen/Progra/route/adapter/out/planning/SimpleRoutePlannerAdapterTest.java` | 18 | `assertThat(adapter.findBestRoutes(...)).isEmpty()` | Empty-result-only placeholder test; useful for current stub behavior, but weak as behavioral proof without a non-empty planner case. | WARNING |
-
-**Assertion quality**: 0 CRITICAL, 1 WARNING.
+**Assertion quality**: ✅ All assertions in `SalesServiceTest` verify executed purchase behavior, exceptions, persistence interactions, PDF-port invocation, generated codes, or transaction annotation.
 
 ---
 
-## Spec Compliance Matrix
+### Quality Metrics
+
+**Linter**: ➖ Not available  
+**Type Checker**: ✅ Java compilation passed as part of Maven test lifecycle
+
+---
+
+### Spec Compliance Matrix
 
 | Requirement | Scenario | Test | Result |
 |-------------|----------|------|--------|
-| Register Customer | Valid registration | `CustomerServiceTest > shouldRegisterCustomerAndReturnSavedEntity` | ✅ COMPLIANT |
-| Register Card | Valid card registration | `CustomerServiceTest > shouldRegisterCardForExistingCustomer` | ✅ COMPLIANT |
-| Lookup Customer | Lookup by passport/document | `CustomerServiceTest > shouldLookupCustomerByDocumentoIdentidad` | ✅ COMPLIANT |
-| Lookup Customer | Customer not found | `CustomerServiceTest > shouldReturnEmptyWhenCustomerDocumentIsMissing` | ✅ COMPLIANT |
-| Query Routes | List routes | `RouteServiceTest > shouldListRoutesAndFindById` | ✅ COMPLIANT |
-| Query Scheduled Services | List services for a route | `ServiceServiceTest > shouldListServicesForRouteAndFindById` | ✅ COMPLIANT |
-| Purchase Constraints | Successful purchase | Deferred to slice 2 | ➖ DEFERRED |
-| Purchase Constraints | Exceeds ticket limit | Deferred to slice 2 | ➖ DEFERRED |
-| Purchase Constraints | Purchase too far in advance | Deferred to slice 2 | ➖ DEFERRED |
-| Purchase Constraints | Insufficient seats | Deferred to slice 2 | ➖ DEFERRED |
-| Ticket Generation | Generating ticket codes | Deferred to slice 2 | ➖ DEFERRED |
-| Receipt Generation Request | Requesting PDF receipt | Deferred to slice 2 | ➖ DEFERRED |
+| Purchase Constraints | Successful purchase | `SalesServiceTest > shouldPurchaseTicketsWithinRulesAndRequestReceiptPdf` | ✅ COMPLIANT |
+| Purchase Constraints | Exceeds ticket limit | `SalesServiceTest > shouldRejectWhenRequestContainsSixTickets` | ✅ COMPLIANT |
+| Purchase Constraints | Purchase too far in advance | `SalesServiceTest > shouldRejectWhenServiceDepartsAfterEightDays` | ✅ COMPLIANT |
+| Purchase Constraints | Insufficient seats | `SalesServiceTest > shouldRejectWhenServiceHasNoSeatsAvailable` | ✅ COMPLIANT |
+| Ticket Generation | Generating ticket codes | `SalesServiceTest > shouldGenerateUniqueCodesWhenGeneratorReturnsCollision` | ✅ COMPLIANT |
+| Receipt Generation Request | Requesting PDF receipt | `SalesServiceTest > shouldPurchaseTicketsWithinRulesAndRequestReceiptPdf` | ✅ COMPLIANT |
+| Register Customer | Valid registration | `CustomerServiceTest` | ✅ COMPLIANT |
+| Register Card | Valid card registration | `CustomerServiceTest` | ✅ COMPLIANT |
+| Lookup Customer | Lookup by passport | `CustomerServiceTest` | ✅ COMPLIANT |
+| Lookup Customer | Customer not found | `CustomerServiceTest` | ✅ COMPLIANT |
+| Query Routes | List routes | `RouteServiceTest` | ✅ COMPLIANT |
+| Query Scheduled Services | List services for a route | `ServiceServiceTest` | ✅ COMPLIANT |
 
-**Compliance summary for slice 1 scenarios**: 6/6 compliant. Sales orchestration scenarios are intentionally deferred and were not counted against slice 1.
+**Compliance summary**: 12/12 scenarios compliant.
 
 ---
 
-## Correctness (Static — Structural Evidence)
+### Correctness (Static — Structural Evidence)
 
 | Requirement | Status | Notes |
 |------------|--------|-------|
-| Complete hexagonal flow for slice 1 | ✅ Implemented | Flow exists from `adapter/in/web` controllers → inbound ports → `@Service` application services → outbound ports → persistence adapters / `SimpleRoutePlannerAdapter`. |
-| App context wires inbound ports and outbound `RoutePlannerPort` | ✅ Implemented | Full `./mvnw test` passes; `RouteService` receives `RoutePlannerPort` from `SimpleRoutePlannerAdapter` as a Spring `@Component`. |
-| Inbound adapters depend on inbound ports, not concrete application services | ✅ Implemented | Constructors use `RegisterCustomerUseCase`, `CustomerQueryUseCase`, `GeographyQueryUseCase`, `FleetQueryUseCase`, `RouteQueryUseCase`, `ServiceQueryUseCase`, and `LoyaltyQueryUseCase`. |
-| Inbound adapters use DTOs and avoid domain entities in public method signatures | ✅ Implemented | Public web methods return request/response records or `ResponseEntity<...>` wrappers, not domain entity types. |
-| Customer not-found lookup behavior test | ✅ Implemented | `CustomerServiceTest > shouldReturnEmptyWhenCustomerDocumentIsMissing` passes. |
-| Sales orchestration | ➖ Deferred | `SalesService` is absent as expected for slice 1; purchase port and command/result contracts exist for slice 2. |
+| Purchase constraints | ✅ Implemented | `SalesService` enforces 1-5 seats, 7-day window, available capacity, and active seat reservation checks. |
+| Ticket generation | ✅ Implemented | `TicketCodeGeneratorPort` plus repository collision loop. |
+| Receipt generation request | ✅ Implemented | `ComprobantePdfPort.generateFor(...)` invoked after receipt persistence. |
+| Sales orchestration behind ports | ✅ Implemented | `SalesService` depends on outbound port interfaces and implements `PurchaseTicketsUseCase`. |
+| Customer/catalog services | ✅ Implemented | Feature-scoped application services use inbound and outbound ports. |
 
 ---
 
-## Coherence (Design)
+### Coherence (Design)
 
 | Decision | Followed? | Notes |
 |----------|-----------|-------|
-| Feature-first application layer | ✅ Yes | Application services and ports are feature-scoped under each feature package. |
-| Sales as orchestrator via ports | ➖ Deferred | Only sales inbound contract and command/result records are present; orchestration is intentionally slice 2. |
-| Transaction boundaries in application services | ➖ Deferred | Mutative purchase transaction boundary belongs to slice 2. |
-| Controllers originally out of scope | ⚠️ Deviated intentionally | Inbound web adapters are now part of the re-verification scope per latest slice-1 fixes. |
-| Application services depend on ports, not adapters | ✅ Yes | Services reviewed depend on outbound ports; no concrete adapter dependency was found in application services. |
+| Feature-first application layer | ✅ Yes | Services and ports remain feature-scoped. |
+| Sales as orchestrator via ports | ✅ Yes | No direct Spring Data or web DTO dependencies in `SalesService`. |
+| Transaction boundaries in application services | ✅ Yes | `SalesService#purchase` is `@Transactional`. |
+| PDF behind outbound port | ✅ Yes | Concrete no-op adapter is isolated under `adapter/out/pdf`. |
 
 ---
 
-## Issues Found
+### Issues Found
 
-### CRITICAL
-
+**CRITICAL** (must fix before archive):  
 None.
 
-### WARNING
+**WARNING** (should fix):  
+- Existing domain entities still carry JPA/Spring annotations/imports. This appears to be baseline architecture debt rather than a regression introduced by slice 2.
 
-1. `apply-progress` was not refreshed after the latest fixes, so Strict TDD evidence does not document `SimpleRoutePlannerAdapter`, `SimpleRoutePlannerAdapterTest`, service bean annotations, or the added customer document-not-found test.
-2. `tasks.md` still marks slice-1 cleanup/wiring checks (`2.4`, `3.4`, `4.2`) incomplete even though this verification found the current slice-1 runtime wiring and boundaries pass.
-3. `SimpleRoutePlannerAdapterTest` only asserts an empty placeholder result. This is acceptable for a wiring stub, but weak as planner behavior proof if route planning becomes product behavior.
-
-### SUGGESTION
-
-1. Update `apply-progress` and `tasks.md` so the SDD audit trail matches the actual fixed implementation.
-2. In a later slice, avoid exposing outbound-port nested types such as `RoutePlannerPort.RouteOption` through inbound/web mapping contracts; a dedicated application result record would reduce port coupling.
+**SUGGESTION** (nice to have):  
+- Add JaCoCo if future Strict TDD gates require changed-file coverage reporting.
 
 ---
 
-## Verdict
+### Verdict
 
-**PASS WITH WARNINGS**
+PASS WITH WARNINGS
 
-The latest route planner adapter fix resolves the prior application-context blocker. Slice 1 now has a complete verifiable hexagonal flow and all slice-1 behavioral scenarios are covered by passing tests; remaining concerns are SDD artifact staleness and weak placeholder planner-test depth, not implementation blockers.
+Behavior, tests, and process artifacts pass for sales orchestration; only baseline domain/JPA coupling remains as a warning.

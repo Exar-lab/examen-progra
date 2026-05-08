@@ -40,7 +40,7 @@ public class JpaServicioRepository implements ServicioRepositoryPort {
     /** {@inheritDoc} */
     @Override
     public List<Servicio> findByRutaIdAndSalidaProgramadaBetween(final Long rutaId, final OffsetDateTime start, final OffsetDateTime end) {
-        return repository.findByRutaIdAndSalidaProgramadaBetween(rutaId, start, end);
+        return repository.findByRuta_IdAndSalidaProgramadaBetween(rutaId, start, end);
     }
 
     /** {@inheritDoc} */

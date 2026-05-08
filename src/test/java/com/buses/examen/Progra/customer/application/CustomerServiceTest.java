@@ -2,11 +2,17 @@ package com.buses.examen.Progra.customer.application;
 
 import com.buses.examen.Progra.customer.application.port.out.ClienteRepositoryPort;
 import com.buses.examen.Progra.customer.application.port.out.TarjetaRepositoryPort;
+import com.buses.examen.Progra.customer.application.command.RegisterCardCommand;
+import com.buses.examen.Progra.customer.application.command.RegisterCustomerCommand;
+import com.buses.examen.Progra.customer.application.result.RegisterCardResult;
+import com.buses.examen.Progra.customer.application.result.RegisterCustomerResult;
 import com.buses.examen.Progra.customer.domain.Cliente;
 import com.buses.examen.Progra.customer.domain.Tarjeta;
+import com.buses.examen.Progra.customer.exception.ClienteNoEncontradoException;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
+import java.time.YearMonth;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,12 +31,14 @@ class CustomerServiceTest {
         final CustomerService service = new CustomerService(clienteRepositoryPort, tarjetaRepositoryPort);
 
         final ArgumentCaptor<Cliente> captor = ArgumentCaptor.forClass(Cliente.class);
-        final Cliente persisted = new Cliente("Ana", "Perez", "P-123", "ana@mail.com", "888");
+        final Cliente persisted = new Cliente("Ana", "Perez", "P-123", "CR", "ana@mail.com", "888");
         when(clienteRepositoryPort.save(captor.capture())).thenReturn(persisted);
 
-        final Cliente result = service.register("Ana", "Perez", "P-123", "CR", "ana@mail.com", "888");
+        final RegisterCustomerResult result = service.register(new RegisterCustomerCommand(
+                "Ana", "Perez", "P-123", "CR", "ana@mail.com", "888"
+        ));
 
-        assertThat(result).isEqualTo(persisted);
+        assertThat(result.id()).isEqualTo(persisted.getId());
         assertThat(captor.getValue()).isNotNull();
     }
 
@@ -40,16 +48,17 @@ class CustomerServiceTest {
         final TarjetaRepositoryPort tarjetaRepositoryPort = mock(TarjetaRepositoryPort.class);
         final CustomerService service = new CustomerService(clienteRepositoryPort, tarjetaRepositoryPort);
 
-        final Cliente cliente = new Cliente("Ana", "Perez", "P-123", "ana@mail.com", "888");
+        final Cliente cliente = new Cliente("Ana", "Perez", "P-123", "CR", "ana@mail.com", "888");
         when(clienteRepositoryPort.findById(10L)).thenReturn(Optional.of(cliente));
         final ArgumentCaptor<Tarjeta> captor = ArgumentCaptor.forClass(Tarjeta.class);
         when(tarjetaRepositoryPort.save(captor.capture())).thenAnswer(invocation -> captor.getValue());
 
-        final Tarjeta result = service.registerCard(10L, "Ana Perez", "VISA", "1111", 12, 2030,
-                "tok-1", "4111******1111", "999");
+        final RegisterCardResult result = service.registerCard(new RegisterCardCommand(
+                10L, "Ana Perez", "VISA", "1111", YearMonth.of(2030, 12), "tok-1", "4111******1111", "999"
+        ));
 
-        assertThat(result.getTokenReferencia()).isEqualTo("tok-1");
-        assertThat(result.getEnmascarada()).isEqualTo("4111******1111");
+        assertThat(result.id()).isEqualTo(captor.getValue().getId());
+        assertThat(result.enmascarada()).isEqualTo("4111******1111");
         verify(tarjetaRepositoryPort).save(captor.getValue());
     }
 
@@ -61,9 +70,10 @@ class CustomerServiceTest {
 
         when(clienteRepositoryPort.findById(99L)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> service.registerCard(99L, "Ana Perez", "VISA", "1111", 12, 2030,
-                "tok-1", "4111******1111", "999"))
-                .isInstanceOf(IllegalArgumentException.class)
+        assertThatThrownBy(() -> service.registerCard(new RegisterCardCommand(
+                99L, "Ana Perez", "VISA", "1111", YearMonth.of(2030, 12), "tok-1", "4111******1111", "999"
+        )))
+                .isInstanceOf(ClienteNoEncontradoException.class)
                 .hasMessageContaining("Cliente no encontrado");
     }
 
@@ -73,7 +83,7 @@ class CustomerServiceTest {
         final TarjetaRepositoryPort tarjetaRepositoryPort = mock(TarjetaRepositoryPort.class);
         final CustomerService service = new CustomerService(clienteRepositoryPort, tarjetaRepositoryPort);
 
-        final Cliente cliente = new Cliente("Ana", "Perez", "P-123", "ana@mail.com", "888");
+        final Cliente cliente = new Cliente("Ana", "Perez", "P-123", "CR", "ana@mail.com", "888");
         when(clienteRepositoryPort.findByDocumentoIdentidad("P-123")).thenReturn(Optional.of(cliente));
 
         final Optional<Cliente> result = service.findByDocumentoIdentidad("P-123");
