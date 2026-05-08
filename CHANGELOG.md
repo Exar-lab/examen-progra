@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.2.0](https://github.com/Exar-lab/examen-progra/compare/v1.1.0...v1.2.0) (2026-05-08)
+
+
+### Features
+
+* **repositories:** add hexagonal persistence adapters ([fcb53de](https://github.com/Exar-lab/examen-progra/commit/fcb53dea6b8e3b64ef1c8c6d55525c544c4c73f2))
+* **repositories:** add hexagonal persistence adapters ([ceb37df](https://github.com/Exar-lab/examen-progra/commit/ceb37dff87c7226dc7c9b85c7f7d508a8bda1091))
+
+
+### Bug Fixes
+
+* **sales:** define monetary column precision ([f09243c](https://github.com/Exar-lab/examen-progra/commit/f09243c572d4e2c080e05a758eec76df74de351c))
+
 ## [1.1.0](https://github.com/Exar-lab/examen-progra/compare/v1.0.2...v1.1.0) (2026-05-06)
 
 
