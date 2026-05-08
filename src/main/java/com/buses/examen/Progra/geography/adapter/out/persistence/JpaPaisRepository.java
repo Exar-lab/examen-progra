@@ -4,6 +4,7 @@ import com.buses.examen.Progra.geography.application.port.out.PaisRepositoryPort
 import com.buses.examen.Progra.geography.domain.Pais;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -32,5 +33,11 @@ public class JpaPaisRepository implements PaisRepositoryPort {
     @Override
     public Optional<Pais> findById(final Long id) {
         return repository.findById(id);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public List<Pais> findAll() {
+        return repository.findAll();
     }
 }

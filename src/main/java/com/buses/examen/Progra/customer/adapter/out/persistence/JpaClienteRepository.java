@@ -40,4 +40,10 @@ public class JpaClienteRepository implements ClienteRepositoryPort {
     public Optional<Cliente> findByDocumentoIdentidad(final String documentoIdentidad) {
         return repository.findByDocumentoIdentidad(documentoIdentidad);
     }
+
+    /** {@inheritDoc} */
+    @Override
+    public Optional<Cliente> findById(final Long id) {
+        return repository.findById(id);
+    }
 }
