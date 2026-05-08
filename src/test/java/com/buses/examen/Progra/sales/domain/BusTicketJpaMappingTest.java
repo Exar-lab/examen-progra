@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,7 +55,7 @@ class BusTicketJpaMappingTest {
 
         final Compra compra = new Compra(cliente, tarjeta, CanalCompra.WEB, "op", OffsetDateTime.now());
         entityManager.persist(compra);
-        final Ticket ticket = Ticket.emitir(compra, servicio, cliente, asientoUno, "TK-1", 40);
+        final Ticket ticket = Ticket.emitir(compra, servicio, cliente, asientoUno, "TK-1", BigDecimal.valueOf(40L));
         compra.agregarTicket(ticket);
         entityManager.persist(ticket);
 
@@ -77,8 +78,8 @@ class BusTicketJpaMappingTest {
         final Compra compra = new Compra(graph.cliente, graph.tarjeta, CanalCompra.WEB, "op-dup-ticket", OffsetDateTime.now());
         entityManager.persist(compra);
 
-        final Ticket first = Ticket.emitir(compra, graph.servicio, graph.cliente, graph.asientoUno, "TK-DUP", 40);
-        final Ticket duplicate = Ticket.emitir(compra, graph.servicio, graph.cliente, graph.asientoDos, "TK-DUP", 40);
+        final Ticket first = Ticket.emitir(compra, graph.servicio, graph.cliente, graph.asientoUno, "TK-DUP", BigDecimal.valueOf(40L));
+        final Ticket duplicate = Ticket.emitir(compra, graph.servicio, graph.cliente, graph.asientoDos, "TK-DUP", BigDecimal.valueOf(40L));
         compra.agregarTicket(first);
 
         entityManager.persist(first);

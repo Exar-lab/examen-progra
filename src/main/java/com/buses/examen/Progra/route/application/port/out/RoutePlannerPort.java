@@ -1,4 +1,4 @@
-package com.buses.examen.Progra.route.service;
+package com.buses.examen.Progra.route.application.port.out;
 
 import java.time.Instant;
 import java.util.List;
