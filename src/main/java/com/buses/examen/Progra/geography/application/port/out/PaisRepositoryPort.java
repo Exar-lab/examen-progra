@@ -2,6 +2,7 @@ package com.buses.examen.Progra.geography.application.port.out;
 
 import com.buses.examen.Progra.geography.domain.Pais;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -23,4 +24,11 @@ public interface PaisRepositoryPort {
      * @return país encontrado, si existe
      */
     Optional<Pais> findById(Long id);
+
+    /**
+     * Lista todos los países registrados.
+     *
+     * @return países disponibles
+     */
+    List<Pais> findAll();
 }

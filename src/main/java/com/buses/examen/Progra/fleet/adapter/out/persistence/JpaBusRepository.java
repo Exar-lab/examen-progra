@@ -4,6 +4,7 @@ import com.buses.examen.Progra.fleet.application.port.out.BusRepositoryPort;
 import com.buses.examen.Progra.fleet.domain.Bus;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -32,5 +33,11 @@ public class JpaBusRepository implements BusRepositoryPort {
     @Override
     public Optional<Bus> findById(final Long id) {
         return repository.findById(id);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public List<Bus> findByCompaniaId(final Long companiaId) {
+        return repository.findByCompania_Id(companiaId);
     }
 }

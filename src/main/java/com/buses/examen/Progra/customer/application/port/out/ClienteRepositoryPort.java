@@ -31,4 +31,12 @@ public interface ClienteRepositoryPort {
      * @return cliente encontrado, si existe
      */
     Optional<Cliente> findByDocumentoIdentidad(String documentoIdentidad);
+
+    /**
+     * Busca un cliente por id.
+     *
+     * @param id identificador del cliente
+     * @return cliente encontrado, si existe
+     */
+    Optional<Cliente> findById(Long id);
 }

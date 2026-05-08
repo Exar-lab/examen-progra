@@ -35,4 +35,11 @@ public interface ServicioRepositoryPort {
      * @return servicios que cumplen el criterio
      */
     List<Servicio> findByRutaIdAndSalidaProgramadaBetween(Long rutaId, OffsetDateTime start, OffsetDateTime end);
+
+    /**
+     * Lista todos los servicios programados.
+     *
+     * @return servicios registrados
+     */
+    List<Servicio> findAll();
 }

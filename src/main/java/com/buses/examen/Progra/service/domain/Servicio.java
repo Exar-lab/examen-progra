@@ -72,6 +72,13 @@ public class Servicio {
     public Bus getBus() { return bus; }
 
     /**
+     * Devuelve el identificador de la ruta asociada.
+     *
+     * @return id de la ruta
+     */
+    public Long getRutaId() { return ruta.getId(); }
+
+    /**
      * Reserva un cupo del servicio, decrementando la capacidad disponible.
      *
      * @throws CapacidadAgotadaException            si no quedan cupos disponibles

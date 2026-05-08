@@ -2,6 +2,7 @@ package com.buses.examen.Progra.geography.application.port.out;
 
 import com.buses.examen.Progra.geography.domain.Ciudad;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -23,4 +24,12 @@ public interface CiudadRepositoryPort {
      * @return ciudad encontrada, si existe
      */
     Optional<Ciudad> findById(Long id);
+
+    /**
+     * Lista las ciudades de un país.
+     *
+     * @param paisId identificador del país
+     * @return ciudades asociadas
+     */
+    List<Ciudad> findByPaisId(Long paisId);
 }
