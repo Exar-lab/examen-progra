@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contacto — CentroBus</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <style>
+    .page-header {
+      padding: 4rem 0 3rem;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(230,57,70,0.05) 0%, transparent 100%);
+    }
+
+    .contact-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: start;
+    }
+
+    .contact-info-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 2rem;
+      margin-bottom: 1rem;
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+
+    .contact-icon {
+      width: 44px;
+      height: 44px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    .contact-info-title {
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.3rem;
+    }
+
+    .contact-info-value {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .form-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 2rem;
+    }
+
+    .form-card-title {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      letter-spacing: 1px;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    @media (max-width: 768px) {
+      .contact-layout { grid-template-columns: 1fr; gap: 2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="index.html" class="navbar-brand">
+    <span class="brand-icon">🚌</span>
+    <span class="brand-text">CENTROBUS</span>
+  </a>
+  <ul class="navbar-links">
+    <li><a href="index.html">Principal</a></li>
+    <li><a href="horarios.html">Horarios y Precios</a></li>
+    <li><a href="contacto.html" class="active">Contacto</a></li>
+  </ul>
+  <div class="navbar-actions" id="navActions">
+    <a href="registro.html" class="btn btn-outline btn-sm">Registrarse</a>
+    <a href="login.html" class="btn btn-primary btn-sm">Iniciar Sesión</a>
+  </div>
+</nav>
+
+<div class="page-wrapper">
+  <div class="page-header">
+    <div class="container">
+      <div class="badge badge-red mb-2">📍 Costa Rica</div>
+      <h1 class="section-title">CONTACTA <span class="text-blue">CON NOSOTROS</span></h1>
+      <p class="section-subtitle">Estamos aquí para ayudarte con tu viaje</p>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="container">
+      <div class="contact-layout">
+
+        <!-- Info -->
+        <div>
+          <h2 style="font-family:var(--font-display); font-size:1.6rem; letter-spacing:1px; margin-bottom:1.5rem;">
+            INFORMACIÓN DE <span class="text-red">CONTACTO</span>
+          </h2>
+
+          <div class="contact-info-card">
+            <div class="contact-icon">📍</div>
+            <div>
+              <div class="contact-info-title">Sede principal</div>
+              <div class="contact-info-value">San José, Costa Rica<br>Av. Central, Terminal Internacional</div>
+            </div>
+          </div>
+
+          <div class="contact-info-card">
+            <div class="contact-icon">📞</div>
+            <div>
+              <div class="contact-info-title">Teléfono</div>
+              <div class="contact-info-value">+506 2222-8800<br>Lun–Vie: 6:00 AM – 8:00 PM</div>
+            </div>
+          </div>
+
+          <div class="contact-info-card">
+            <div class="contact-icon">✉️</div>
+            <div>
+              <div class="contact-info-title">Correo electrónico</div>
+              <div class="contact-info-value">soporte@centrobus.cr<br>reservas@centrobus.cr</div>
+            </div>
+          </div>
+
+          <div class="contact-info-card">
+            <div class="contact-icon">🕐</div>
+            <div>
+              <div class="contact-info-title">Horario de atención</div>
+              <div class="contact-info-value">
+                Lunes a Viernes: 6:00 AM – 8:00 PM<br>
+                Sábados y Domingos: 7:00 AM – 5:00 PM
+              </div>
+            </div>
+          </div>
+
+          <div class="contact-info-card">
+            <div class="contact-icon">🚌</div>
+            <div>
+              <div class="contact-info-title">Terminales internacionales</div>
+              <div class="contact-info-value">
+                Costa Rica · Nicaragua · El Salvador<br>
+                Guatemala · Honduras · Panamá
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Formulario -->
+        <div class="form-card">
+          <div class="form-card-title">ENVIAR MENSAJE</div>
+
+          <div id="alertContainer"></div>
+
+          <form onsubmit="handleContact(event)">
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Nombre *</label>
+                <input type="text" class="form-control" placeholder="Tu nombre" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Correo *</label>
+                <input type="email" class="form-control" placeholder="tu@correo.com" required />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Asunto *</label>
+              <select class="form-control" required>
+                <option value="">Seleccionar...</option>
+                <option>Consulta sobre rutas</option>
+                <option>Problema con mi compra</option>
+                <option>Solicitud de reembolso</option>
+                <option>Información general</option>
+                <option>Otro</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Mensaje *</label>
+              <textarea class="form-control" rows="5" placeholder="Describe tu consulta..." required
+                style="resize: vertical;"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg w-full" id="contactBtn">
+              Enviar Mensaje
+            </button>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </section>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="brand-text">🚌 CENTROBUS</div>
+        <p class="footer-desc">Sistema de venta de pasajes para toda Centroamérica.</p>
+      </div>
+      <div>
+        <div class="footer-title">Navegación</div>
+        <ul class="footer-links">
+          <li><a href="index.html">Principal</a></li>
+          <li><a href="horarios.html">Horarios y Precios</a></li>
+          <li><a href="contacto.html">Contacto</a></li>
+          <li><a href="registro.html">Registrarse</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-title">Acceso</div>
+        <ul class="footer-links">
+          <li><a href="login.html">Iniciar Sesión</a></li>
+          <li><a href="compra.html">Comprar Pasaje</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 CentroBus. Todos los derechos reservados.</span>
+      <span>🇨🇷 Con sede en Costa Rica</span>
+    </div>
+  </div>
+</footer>
+
+<script src="js/mock-data.js"></script>
+<script>
+  function renderNavActions() {
+    const el = document.getElementById('navActions');
+    if (isLoggedIn()) {
+      el.innerHTML = `
+        <span class="nav-user">👤 <span>${SESSION_USER.nombre}</span></span>
+        <a href="compra.html" class="btn btn-secondary btn-sm">Comprar</a>
+        <button class="btn btn-ghost btn-sm" onclick="logout()">Salir</button>
+      `;
+    }
+  }
+
+  function handleContact(e) {
+    e.preventDefault();
+    const btn = document.getElementById('contactBtn');
+    btn.innerHTML = '<span class="spinner"></span> Enviando...';
+    btn.disabled = true;
+
+    setTimeout(() => {
+      document.getElementById('alertContainer').innerHTML = `
+        <div class="alert alert-success">
+          ✅ Mensaje enviado con éxito. Te contactaremos pronto.
+        </div>
+      `;
+      e.target.reset();
+      btn.innerHTML = 'Enviar Mensaje';
+      btn.disabled = false;
+    }, 1200);
+  }
+
+  renderNavActions();
+</script>
+</body>
+</html>

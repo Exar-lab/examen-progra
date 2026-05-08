@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CentroBus — Viajes Internacionales Centroamérica</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <style>
+    /* ── Hero ──────────────────────────────────────────── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+      padding-top: var(--nav-height);
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 70% 40%, rgba(29,140,248,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 40% at 20% 60%, rgba(230,57,70,0.10) 0%, transparent 55%);
+      pointer-events: none;
+    }
+
+    /* Road lines decoration */
+    .hero-road {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: repeating-linear-gradient(
+        90deg,
+        var(--red) 0px,
+        var(--red) 60px,
+        transparent 60px,
+        transparent 100px
+      );
+      opacity: 0.4;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-bright);
+      border-radius: 100px;
+      padding: 0.4rem 1rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+      animation: fadeUp 0.4s ease forwards;
+    }
+
+    .hero-tag .dot {
+      width: 6px;
+      height: 6px;
+      background: var(--red);
+      border-radius: 50%;
+      animation: pulse-red 2s infinite;
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(3.5rem, 8vw, 7rem);
+      line-height: 0.95;
+      letter-spacing: 2px;
+      margin-bottom: 1.5rem;
+      animation: fadeUp 0.5s ease 0.1s both;
+    }
+
+    .hero-title .line-red {
+      color: var(--red);
+      display: block;
+    }
+
+    .hero-title .line-blue {
+      color: var(--blue);
+      display: block;
+    }
+
+    .hero-desc {
+      font-size: 1.15rem;
+      color: var(--text-secondary);
+      max-width: 520px;
+      margin-bottom: 2.5rem;
+      animation: fadeUp 0.5s ease 0.2s both;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      animation: fadeUp 0.5s ease 0.3s both;
+    }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-top: 4rem;
+      padding-top: 3rem;
+      border-top: 1px solid var(--border);
+      animation: fadeUp 0.5s ease 0.4s both;
+    }
+
+    .stat-value {
+      font-family: var(--font-display);
+      font-size: 2.8rem;
+      letter-spacing: 1px;
+      color: var(--text-primary);
+    }
+
+    .stat-value span { color: var(--red); }
+
+    .stat-label {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 700;
+      margin-top: 0.25rem;
+    }
+
+    /* Decorative bus illustration */
+    .hero-visual {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .bus-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      width: 340px;
+      animation: fadeUp 0.6s ease 0.2s both;
+      position: relative;
+    }
+
+    .bus-card::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(135deg, var(--blue), var(--red));
+      z-index: -1;
+      opacity: 0.5;
+    }
+
+    .bus-icon-big {
+      font-size: 5rem;
+      text-align: center;
+      display: block;
+      margin-bottom: 1rem;
+    }
+
+    .route-preview {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: var(--bg-elevated);
+      border-radius: var(--radius-sm);
+      padding: 0.75rem 1rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .route-preview-flags {
+      font-size: 1.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .route-preview-info {
+      flex: 1;
+    }
+
+    .route-preview-name {
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .route-preview-time {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .route-preview-price {
+      font-family: var(--font-mono);
+      color: var(--gold);
+      font-weight: 600;
+    }
+
+    /* ── Rutas section ─────────────────────────────────── */
+    .routes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+
+    .route-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.25s;
+      cursor: pointer;
+    }
+
+    .route-card:hover {
+      border-color: var(--blue);
+      box-shadow: var(--shadow-blue);
+      transform: translateY(-2px);
+    }
+
+    .route-flags {
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .route-arrow {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .route-info {
+      flex: 1;
+      padding: 0 1rem;
+    }
+
+    .route-name {
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .route-time {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-top: 0.2rem;
+    }
+
+    .route-price-col {
+      text-align: right;
+    }
+
+    /* ── Features ──────────────────────────────────────── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--red), var(--blue));
+      transform: scaleX(0);
+      transition: transform 0.3s;
+      transform-origin: left;
+    }
+
+    .feature-card:hover::after { transform: scaleX(1); }
+
+    .feature-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .feature-title {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      letter-spacing: 1px;
+      margin-bottom: 0.5rem;
+    }
+
+    .feature-desc {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    /* ── CTA ───────────────────────────────────────────── */
+    .cta-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 4rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 60% 80% at 50% 50%, rgba(230,57,70,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    @media (max-width: 768px) {
+      .features-grid { grid-template-columns: 1fr; }
+      .hero-stats { grid-template-columns: 1fr 1fr; }
+      .bus-card { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Navbar ─────────────────────────────────────────────── -->
+<nav class="navbar">
+  <a href="index.html" class="navbar-brand">
+    <span class="brand-icon">🚌</span>
+    <span class="brand-text">CENTROBUS</span>
+  </a>
+
+  <ul class="navbar-links">
+    <li><a href="index.html" class="active">Principal</a></li>
+    <li><a href="horarios.html">Horarios y Precios</a></li>
+    <li><a href="contacto.html">Contacto</a></li>
+  </ul>
+
+  <div class="navbar-actions" id="navActions">
+    <a href="registro.html" class="btn btn-outline btn-sm">Registrarse</a>
+    <a href="login.html" class="btn btn-primary btn-sm">Iniciar Sesión</a>
+  </div>
+</nav>
+
+<!-- ── Hero ───────────────────────────────────────────────── -->
+<div class="page-wrapper">
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-road"></div>
+
+    <div class="container" style="display:grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;">
+      <div class="hero-content">
+        <div class="hero-tag">
+          <span class="dot"></span>
+          Centroamérica · Desde Costa Rica
+        </div>
+
+        <h1 class="hero-title">
+          VIAJA
+          <span class="line-red">SIN</span>
+          <span class="line-blue">LÍMITES</span>
+        </h1>
+
+        <p class="hero-desc">
+          Compra tu pasaje de bus en línea para destinos en toda Centroamérica.
+          Rápido, seguro y con comprobante electrónico al instante.
+        </p>
+
+        <div class="hero-actions">
+          <a href="horarios.html" class="btn btn-primary btn-lg">Ver Horarios</a>
+          <a href="registro.html" class="btn btn-outline btn-lg">Crear Cuenta</a>
+        </div>
+
+        <div class="hero-stats">
+          <div>
+            <div class="stat-value">13<span>+</span></div>
+            <div class="stat-label">Rutas activas</div>
+          </div>
+          <div>
+            <div class="stat-value">6<span></span></div>
+            <div class="stat-label">Países</div>
+          </div>
+          <div>
+            <div class="stat-value">$<span>80</span></div>
+            <div class="stat-label">Desde</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-visual">
+        <div class="bus-card">
+          <span class="bus-icon-big">🚌</span>
+
+          <div class="route-preview">
+            <span class="route-preview-flags">🇨🇷 → 🇳🇮</span>
+            <div class="route-preview-info">
+              <div class="route-preview-name">CR → Nicaragua</div>
+              <div class="route-preview-time">Salida: 06:00 AM</div>
+            </div>
+            <span class="route-preview-price">$80</span>
+          </div>
+
+          <div class="route-preview">
+            <span class="route-preview-flags">🇨🇷 → 🇬🇹</span>
+            <div class="route-preview-info">
+              <div class="route-preview-name">CR → Guatemala</div>
+              <div class="route-preview-time">Salida: 06:00 AM</div>
+            </div>
+            <span class="route-preview-price">$140</span>
+          </div>
+
+          <div class="route-preview">
+            <span class="route-preview-flags">🇵🇦 → 🇨🇷</span>
+            <div class="route-preview-info">
+              <div class="route-preview-name">Panamá → CR</div>
+              <div class="route-preview-time">Salida: 08:00 AM</div>
+            </div>
+            <span class="route-preview-price">$80</span>
+          </div>
+
+          <a href="compra.html" class="btn btn-primary w-full mt-2">Comprar Pasaje →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Rutas ───────────────────────────────────────────── -->
+  <section class="section">
+    <div class="container">
+      <div class="flex-between mb-4">
+        <div>
+          <h2 class="section-title">NUESTRAS <span class="text-red">RUTAS</span></h2>
+          <p class="section-subtitle">Servicios directos entre los principales destinos de Centroamérica</p>
+        </div>
+        <a href="horarios.html" class="btn btn-outline">Ver todos los horarios →</a>
+      </div>
+
+      <div class="routes-grid" id="routesGrid"></div>
+    </div>
+  </section>
+
+  <!-- ── Features ───────────────────────────────────────── -->
+  <section class="section" style="background: var(--bg-card); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+    <div class="container">
+      <h2 class="section-title text-center mb-2">¿POR QUÉ <span class="text-blue">CENTROBUS</span>?</h2>
+      <p class="section-subtitle text-center">Tecnología y comodidad para tu viaje</p>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🎫</div>
+          <div class="feature-title">CÓDIGO ÚNICO</div>
+          <p class="feature-desc">Cada tiquete genera un código único e irrepetible. Preséntalo en el bus y viaja sin complicaciones.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📄</div>
+          <div class="feature-title">COMPROBANTE PDF</div>
+          <p class="feature-desc">Recibe tu comprobante electrónico en PDF inmediatamente después de la compra. Guárdalo donde quieras.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔒</div>
+          <div class="feature-title">PAGO SEGURO</div>
+          <p class="feature-desc">Tu información de pago está protegida. Sistema seguro para todos tus datos personales y de tarjeta.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🗓️</div>
+          <div class="feature-title">COMPRA CON TIEMPO</div>
+          <p class="feature-desc">Compra tu pasaje hasta con 7 días de anticipación. Planifica tu viaje con tranquilidad.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🌎</div>
+          <div class="feature-title">6 PAÍSES</div>
+          <p class="feature-desc">Conectamos Costa Rica, Nicaragua, El Salvador, Guatemala, Honduras y Panamá en una sola plataforma.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">⚡</div>
+          <div class="feature-title">COMPRA RÁPIDA</div>
+          <p class="feature-desc">Proceso de compra en menos de 2 minutos. Selecciona tu ruta, paga y listo para viajar.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA ─────────────────────────────────────────────── -->
+  <section class="section">
+    <div class="container">
+      <div class="cta-section">
+        <h2 class="section-title mb-2">¿LISTO PARA <span class="text-red">VIAJAR</span>?</h2>
+        <p style="color: var(--text-secondary); font-size: 1.1rem; margin-bottom: 2rem;">
+          Crea tu cuenta gratis y compra tu primer pasaje en minutos.
+        </p>
+        <div class="flex-center gap-2">
+          <a href="registro.html" class="btn btn-primary btn-lg">Crear Cuenta Gratis</a>
+          <a href="horarios.html" class="btn btn-outline btn-lg">Ver Horarios</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Footer ──────────────────────────────────────────── -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="brand-text">🚌 CENTROBUS</div>
+          <p class="footer-desc">Sistema de venta de pasajes de bus para toda Centroamérica. Rápido, seguro y confiable.</p>
+        </div>
+        <div>
+          <div class="footer-title">Navegación</div>
+          <ul class="footer-links">
+            <li><a href="index.html">Principal</a></li>
+            <li><a href="horarios.html">Horarios y Precios</a></li>
+            <li><a href="contacto.html">Contacto</a></li>
+            <li><a href="registro.html">Registrarse</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="footer-title">Acceso</div>
+          <ul class="footer-links">
+            <li><a href="login.html">Iniciar Sesión</a></li>
+            <li><a href="compra.html">Comprar Pasaje</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 CentroBus. Todos los derechos reservados.</span>
+        <span>🇨🇷 Con sede en Costa Rica</span>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<script src="js/mock-data.js"></script>
+<script>
+  // ── Navbar dinámico según sesión ───────────────────────
+  function renderNavActions() {
+    const el = document.getElementById('navActions');
+    if (isLoggedIn()) {
+      el.innerHTML = `
+        <span class="nav-user">👤 <span>${SESSION_USER.nombre}</span></span>
+        <a href="compra.html" class="btn btn-secondary btn-sm">Mis Pasajes</a>
+        <button class="btn btn-ghost btn-sm" onclick="logout()">Salir</button>
+      `;
+    }
+  }
+
+  // ── Renderizar rutas ────────────────────────────────────
+  function renderRoutes() {
+    const grid = document.getElementById('routesGrid');
+    // Mostrar rutas únicas (sin duplicar origen-destino)
+    const seen = new Set();
+    const uniqueRoutes = RUTAS.filter(r => {
+      const key = `${r.origen}-${r.destino}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+
+    grid.innerHTML = uniqueRoutes.map(r => {
+      const o = PAISES[r.origen];
+      const d = PAISES[r.destino];
+      return `
+        <div class="route-card" onclick="window.location.href='horarios.html'">
+          <div class="route-flags">
+            ${o.bandera}
+            <span class="route-arrow">→</span>
+            ${d.bandera}
+          </div>
+          <div class="route-info">
+            <div class="route-name">${o.nombre} → ${d.nombre}</div>
+            <div class="route-time">Salida: ${r.horario} · ${r.duracionHoras}h aprox.</div>
+          </div>
+          <div class="route-price-col">
+            <div class="price">$${r.precio}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  renderNavActions();
+  renderRoutes();
+</script>
+</body>
+</html>

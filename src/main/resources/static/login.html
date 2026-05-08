@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Iniciar Sesión — CentroBus</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <style>
+    .login-layout {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      position: relative;
+    }
+
+    .login-layout::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 50% 60% at 20% 40%, rgba(230,57,70,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 60% at 80% 60%, rgba(29,140,248,0.08) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .login-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 3rem;
+      width: 100%;
+      max-width: 440px;
+      position: relative;
+      animation: fadeUp 0.4s ease;
+    }
+
+    .login-box::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--red), var(--blue));
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    }
+
+    .login-logo {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .login-logo .bus { font-size: 3rem; }
+
+    .login-logo .brand-text {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      letter-spacing: 2px;
+      background: linear-gradient(135deg, var(--blue), var(--red));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .login-title {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      letter-spacing: 1px;
+      margin-bottom: 0.25rem;
+    }
+
+    .login-sub {
+      color: var(--text-secondary);
+      font-size: 0.88rem;
+      margin-bottom: 2rem;
+    }
+
+    .divider-line {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 1.5rem 0;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+    .divider-line::before, .divider-line::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="index.html" class="navbar-brand">
+    <span class="brand-icon">🚌</span>
+    <span class="brand-text">CENTROBUS</span>
+  </a>
+  <ul class="navbar-links">
+    <li><a href="index.html">Principal</a></li>
+    <li><a href="horarios.html">Horarios y Precios</a></li>
+    <li><a href="contacto.html">Contacto</a></li>
+  </ul>
+  <div class="navbar-actions">
+    <a href="registro.html" class="btn btn-primary btn-sm">Crear Cuenta</a>
+  </div>
+</nav>
+
+<div style="padding-top: var(--nav-height);">
+  <div class="login-layout">
+    <div class="login-box">
+
+      <div class="login-logo">
+        <div class="bus">🚌</div>
+        <div class="brand-text">CENTROBUS</div>
+      </div>
+
+      <div class="login-title">Bienvenido de vuelta</div>
+      <p class="login-sub">¿No tienes cuenta? <a href="registro.html">Regístrate gratis</a></p>
+
+      <div id="alertContainer"></div>
+
+      <form id="loginForm" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label class="form-label">Correo electrónico</label>
+          <input type="email" class="form-control" id="correo"
+                 placeholder="tu@correo.com" required autofocus />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Contraseña</label>
+          <input type="password" class="form-control" id="password"
+                 placeholder="Tu contraseña" required />
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg w-full mt-3" id="submitBtn">
+          Iniciar Sesión
+        </button>
+      </form>
+
+      <div class="divider-line">o</div>
+
+      <a href="registro.html" class="btn btn-outline w-full">
+        Crear cuenta nueva
+      </a>
+
+      <p class="text-center text-muted mt-3" style="font-size:0.78rem;">
+        Demo: usa cualquier correo y contraseña de 8+ caracteres
+      </p>
+    </div>
+  </div>
+</div>
+
+<script src="js/mock-data.js"></script>
+<script>
+  if (isLoggedIn()) window.location.href = 'compra.html';
+
+  function showAlert(msg, type = 'error') {
+    document.getElementById('alertContainer').innerHTML = `
+      <div class="alert alert-${type}">${type === 'error' ? '⚠️' : '✅'} ${msg}</div>
+    `;
+  }
+
+  function handleLogin(e) {
+    e.preventDefault();
+
+    const correo   = document.getElementById('correo').value;
+    const password = document.getElementById('password').value;
+    const btn      = document.getElementById('submitBtn');
+
+    if (password.length < 8) {
+      showAlert('La contraseña debe tener al menos 8 caracteres.');
+      return;
+    }
+
+    btn.innerHTML = '<span class="spinner"></span> Ingresando...';
+    btn.disabled = true;
+
+    // ── MOCK: Simular login ─────────────────────────────
+    // TODO: Reemplazar con fetch('/api/auth/login', { method: 'POST', ... })
+    setTimeout(() => {
+      const nombre = correo.split('@')[0];
+      guardarSesion({
+        id: Date.now(),
+        nombre: nombre.charAt(0).toUpperCase() + nombre.slice(1),
+        correo,
+      });
+      window.location.href = 'compra.html';
+    }, 1000);
+  }
+</script>
+</body>
+</html>
