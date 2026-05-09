@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.3.0](https://github.com/Exar-lab/examen-progra/compare/v1.2.0...v1.3.0) (2026-05-09)
+
+
+### Features
+
+* **application:** add hexagonal query services ([038c72f](https://github.com/Exar-lab/examen-progra/commit/038c72f56fdcf750c388fd1f558190a118e792a0))
+* **application:** add hexagonal query services ([d838057](https://github.com/Exar-lab/examen-progra/commit/d838057764ce1b3c138ab2138ecaab403da8a548))
+* **application:** add sales orchestration and clean web adapters ([2a3e191](https://github.com/Exar-lab/examen-progra/commit/2a3e1910ef7fd1092ae38c6ae4cdefc13ec0196b))
+* **catalog:** preload route services ([da96064](https://github.com/Exar-lab/examen-progra/commit/da96064ff09ca7f16f71cc041397172b59684302))
+* **catalog:** preload route services ([0fe4267](https://github.com/Exar-lab/examen-progra/commit/0fe426799b77d14a1915b48a3175cb95e9a8f603))
+* **security:** add session-based login and purchase authorization ([5d12aa8](https://github.com/Exar-lab/examen-progra/commit/5d12aa84503d35ff4117aa4f4a1fbe2ee83eb736))
+* **security:** expose REST session login ([c3f45cb](https://github.com/Exar-lab/examen-progra/commit/c3f45cb4195c4f4630264948982323232795de64))
+* **security:** harden customer credentials and card registration ([90775f9](https://github.com/Exar-lab/examen-progra/commit/90775f98acdb8f5d9f74f11e786f43e4d5d7393f))
+
 ## [1.2.0](https://github.com/Exar-lab/examen-progra/compare/v1.1.0...v1.2.0) (2026-05-08)
 
 
