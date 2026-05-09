@@ -44,6 +44,7 @@ public class WebSecurityConfig {
                         // Endpoints públicos: autenticación
                         .requestMatchers(HttpMethod.GET, "/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                         // Registro y consulta pública de clientes
                         .requestMatchers(HttpMethod.GET, "/api/customers/register").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/customers/document/**").permitAll()

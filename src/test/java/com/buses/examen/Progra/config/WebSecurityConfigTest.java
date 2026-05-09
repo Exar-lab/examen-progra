@@ -14,6 +14,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -69,6 +71,31 @@ class WebSecurityConfigTest {
                     if (status == 401 || status == 403) {
                         throw new AssertionError(
                                 "Expected public catalog access allowed but got: " + status);
+                    }
+                });
+    }
+
+    /**
+     * Verifica que POST /api/auth/login está permitido por seguridad sin autenticación previa.
+     *
+     * @throws Exception si falla la ejecución del request MVC
+     */
+    @Test
+    void shouldAllowPublicRestLoginWithoutAuth() throws Exception {
+        mockMvc.perform(post("/api/auth/login")
+                        .with(csrf())
+                        .contentType("application/json")
+                        .content("""
+                                {
+                                  "username": "u",
+                                  "password": "p"
+                                }
+                                """))
+                .andExpect(result -> {
+                    final int status = result.getResponse().getStatus();
+                    if (status == 401 || status == 403) {
+                        throw new AssertionError(
+                                "Expected public REST login allowed (not 401/403) but got: " + status);
                     }
                 });
     }
