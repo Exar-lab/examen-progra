@@ -7,5 +7,5 @@ import java.time.OffsetDateTime;
 import java.util.List;
 
 interface SpringDataServicioRepository extends JpaRepository<Servicio, Long> {
-    List<Servicio> findByRutaIdAndSalidaProgramadaBetween(Long rutaId, OffsetDateTime start, OffsetDateTime end);
+    List<Servicio> findByRuta_IdAndSalidaProgramadaBetween(Long rutaId, OffsetDateTime start, OffsetDateTime end);
 }

@@ -4,6 +4,7 @@ import com.buses.examen.Progra.route.application.port.out.RutaRepositoryPort;
 import com.buses.examen.Progra.route.domain.Ruta;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -32,5 +33,11 @@ public class JpaRutaRepository implements RutaRepositoryPort {
     @Override
     public Optional<Ruta> findById(final Long id) {
         return repository.findById(id);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public List<Ruta> findAll() {
+        return repository.findAll();
     }
 }

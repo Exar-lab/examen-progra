@@ -1,9 +1,13 @@
 package com.buses.examen.Progra.persistence.adapter.out.persistence;
 
 import com.buses.examen.Progra.customer.adapter.out.persistence.JpaClienteRepository;
+import com.buses.examen.Progra.customer.adapter.out.persistence.JpaUserSecurityRepository;
+import com.buses.examen.Progra.customer.adapter.out.persistence.SpringDataTarjetaRepository;
 import com.buses.examen.Progra.customer.application.port.out.ClienteRepositoryPort;
+import com.buses.examen.Progra.customer.application.port.out.UserSecurityRepositoryPort;
 import com.buses.examen.Progra.customer.domain.Cliente;
 import com.buses.examen.Progra.customer.domain.Tarjeta;
+import com.buses.examen.Progra.customer.domain.UserSecurity;
 import com.buses.examen.Progra.fleet.domain.Asiento;
 import com.buses.examen.Progra.fleet.domain.Bus;
 import com.buses.examen.Progra.fleet.domain.Compania;
@@ -40,10 +44,12 @@ import java.time.OffsetDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DataJpaTest
 @Import({
         JpaClienteRepository.class,
+        JpaUserSecurityRepository.class,
         JpaServicioRepository.class,
         JpaBusRepository.class,
         JpaAsientoRepository.class,
@@ -58,6 +64,12 @@ class RepositoryAdaptersDataJpaTest {
 
     @Autowired
     private ClienteRepositoryPort clienteRepositoryPort;
+
+    @Autowired
+    private UserSecurityRepositoryPort userSecurityRepositoryPort;
+
+    @Autowired
+    private SpringDataTarjetaRepository springDataTarjetaRepository;
 
     @Autowired
     private ServicioRepositoryPort servicioRepositoryPort;
@@ -80,12 +92,59 @@ class RepositoryAdaptersDataJpaTest {
     /** Verifica que el adaptador de cliente consulta por email y pasaporte. */
     @Test
     public void shouldFindCustomerByEmailAndPassport() {
-        final Cliente cliente = new Cliente("Juan", "Perez", "P-123", "juan@mail.com", "999");
+        final Cliente cliente = new Cliente("Juan", "Perez", "P-123", "CR", "juan@mail.com", "999");
         entityManager.persist(cliente);
         entityManager.flush();
 
         assertThat(clienteRepositoryPort.findByEmail("juan@mail.com")).isPresent();
         assertThat(clienteRepositoryPort.findByDocumentoIdentidad("P-123")).isPresent();
+    }
+
+    /** Verifica persistencia uno-a-uno entre cliente y credenciales únicas. */
+    @Test
+    void shouldPersistOneToOneUserSecurityWithUniqueUsername() {
+        final Cliente cliente = new Cliente("Ana", "Perez", "P-901", "CR", "ana901@mail.com", "700");
+        entityManager.persist(cliente);
+
+        final UserSecurity security = new UserSecurity(cliente, "ana_user_901", "hash-901", true, false);
+        userSecurityRepositoryPort.save(security);
+        entityManager.flush();
+
+        assertThat(userSecurityRepositoryPort.findByUsername("ana_user_901")).isPresent();
+        assertThat(userSecurityRepositoryPort.findByClienteId(cliente.getId())).isPresent();
+    }
+
+    /** Verifica que username duplicado se rechaza por restricción de persistencia. */
+    @Test
+    void shouldRejectDuplicatedUsernameAtPersistenceLevel() {
+        final Cliente clienteA = new Cliente("Ana", "A", "P-902", "CR", "ana902@mail.com", "701");
+        final Cliente clienteB = new Cliente("Ana", "B", "P-903", "CR", "ana903@mail.com", "702");
+        entityManager.persist(clienteA);
+        entityManager.persist(clienteB);
+
+        userSecurityRepositoryPort.save(new UserSecurity(clienteA, "duplicado", "hash-a", true, false));
+        entityManager.flush();
+
+        assertThatThrownBy(() -> {
+            userSecurityRepositoryPort.save(new UserSecurity(clienteB, "duplicado", "hash-b", true, false));
+            entityManager.flush();
+        }).isInstanceOf(Exception.class);
+    }
+
+    /** Verifica que el CVV nunca se persiste en la entidad tarjeta. */
+    @Test
+    void shouldNeverPersistCardCvv() {
+        final Cliente cliente = new Cliente("Ana", "C", "P-904", "CR", "ana904@mail.com", "703");
+        entityManager.persist(cliente);
+
+        final Tarjeta tarjeta = Tarjeta.fromGatewayToken(cliente, "Ana C", "VISA", "1234", 12, 2031,
+                "tok-904", "4111******1234");
+        springDataTarjetaRepository.save(tarjeta);
+        entityManager.flush();
+        entityManager.clear();
+
+        final Tarjeta reloaded = springDataTarjetaRepository.findById(tarjeta.getId()).orElseThrow();
+        assertThat(reloaded.getCvv()).isNull();
     }
 
     /** Verifica que el adaptador de servicio filtra por ruta y ventana temporal. */
@@ -201,14 +260,14 @@ class RepositoryAdaptersDataJpaTest {
                 bus,
                 OffsetDateTime.now().plusDays(1),
                 OffsetDateTime.now().plusDays(1).plusHours(4),
-                30,
+                BigDecimal.valueOf(30),
                 EstadoServicio.PROGRAMADO,
                 40
         );
         entityManager.persist(servicio);
-        final Cliente cliente = new Cliente("Ana", "Rojas", "P-999", "ana@mail.com", "888");
+        final Cliente cliente = new Cliente("Ana", "Rojas", "P-999", "CR", "ana@mail.com", "888");
         entityManager.persist(cliente);
-        final Tarjeta tarjeta = Tarjeta.fromGatewayToken(cliente, "Ana Rojas", "VISA", "1111", 12, 2030, "tok-1", "4111******1111", "999");
+        final Tarjeta tarjeta = Tarjeta.fromGatewayToken(cliente, "Ana Rojas", "VISA", "1111", 12, 2030, "tok-1", "4111******1111");
         entityManager.persist(tarjeta);
         entityManager.flush();
         return new BaseGraph(cliente, tarjeta, ruta, servicio, bus, asiento);
@@ -229,7 +288,7 @@ class RepositoryAdaptersDataJpaTest {
                 graph.bus,
                 OffsetDateTime.now().plusHours(3),
                 OffsetDateTime.now().plusHours(6),
-                25,
+                BigDecimal.valueOf(25),
                 EstadoServicio.PROGRAMADO,
                 40
         );
@@ -238,7 +297,7 @@ class RepositoryAdaptersDataJpaTest {
                 graph.bus,
                 OffsetDateTime.now().plusDays(3),
                 OffsetDateTime.now().plusDays(3).plusHours(2),
-                25,
+                BigDecimal.valueOf(25),
                 EstadoServicio.PROGRAMADO,
                 40
         );
