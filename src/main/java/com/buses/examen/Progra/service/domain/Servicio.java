@@ -40,8 +40,8 @@ public class Servicio {
      * @param capacidadDisponible cupos disponibles para venta
      */
     public Servicio(@NonNull final Ruta ruta, @NonNull final Bus bus, @NonNull final OffsetDateTime salidaProgramada,
-                     @NonNull final OffsetDateTime llegadaProgramada, @NonNull final BigDecimal precioBase,
-                     @NonNull final EstadoServicio estado, final int capacidadDisponible) {
+                    @NonNull final OffsetDateTime llegadaProgramada, @NonNull final BigDecimal precioBase,
+                    @NonNull final EstadoServicio estado, final int capacidadDisponible) {
         this.ruta = ruta;
         this.bus = bus;
         this.salidaProgramada = salidaProgramada;
