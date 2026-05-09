@@ -21,6 +21,8 @@ import java.lang.reflect.Field;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -62,7 +64,9 @@ class CustomerControllerWebMvcTest {
                                   "documentoIdentidad":"P-123",
                                   "nacionalidad":"CR",
                                   "email":"ana@mail.com",
-                                  "telefono":"888"
+                                  "telefono":"888",
+                                  "username":"ana_user",
+                                  "password":"ClaveSegura123"
                                 }
                                 """))
                 .andExpect(status().isCreated())
@@ -86,7 +90,9 @@ class CustomerControllerWebMvcTest {
                                   "documentoIdentidad":"P-123",
                                   "nacionalidad":"CR",
                                   "email":"invalid-mail",
-                                  "telefono":"888"
+                                  "telefono":"888",
+                                  "username":"",
+                                  "password":"123"
                                 }
                                 """))
                 .andExpect(status().isBadRequest());
@@ -108,11 +114,8 @@ class CustomerControllerWebMvcTest {
                         .content("""
                                 {
                                   "titular":"Ana Perez",
-                                  "marca":"VISA",
-                                  "ultimo4":"1111",
+                                  "numeroTarjeta":"4111111111111111",
                                   "fechaExpiracion":"12/2030",
-                                  "tokenReferencia":"tok-1",
-                                  "enmascarada":"4111******1111",
                                   "cvv":"999"
                                 }
                                 """))
@@ -134,15 +137,14 @@ class CustomerControllerWebMvcTest {
                         .content("""
                                 {
                                   "titular":"Ana Perez",
-                                  "marca":"VISA",
-                                  "ultimo4":"1111",
+                                  "numeroTarjeta":"",
                                   "fechaExpiracion":"13/30",
-                                  "tokenReferencia":"tok-1",
-                                  "enmascarada":"4111******1111",
-                                  "cvv":"999"
+                                  "cvv":"9"
                                 }
                                 """))
                 .andExpect(status().isBadRequest());
+
+        verify(registerCustomerUseCase, never()).registerCard(any(RegisterCardCommand.class));
     }
 
     /**

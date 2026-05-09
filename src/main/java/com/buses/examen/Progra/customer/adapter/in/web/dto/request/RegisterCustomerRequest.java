@@ -13,6 +13,8 @@ import jakarta.validation.constraints.Size;
  * @param nacionalidad nacionalidad del cliente
  * @param email correo electrónico del cliente
  * @param telefono teléfono del cliente
+ * @param username nombre de usuario
+ * @param password contraseña sin procesar
  */
 public record RegisterCustomerRequest(
         @NotBlank
@@ -33,5 +35,11 @@ public record RegisterCustomerRequest(
         String email,
         @NotBlank
         @Size(max = 25)
-        String telefono
+        String telefono,
+        @NotBlank
+        @Size(min = 4, max = 60)
+        String username,
+        @NotBlank
+        @Size(min = 8, max = 120)
+        String password
 ) { }

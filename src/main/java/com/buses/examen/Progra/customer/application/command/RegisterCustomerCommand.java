@@ -9,6 +9,8 @@ package com.buses.examen.Progra.customer.application.command;
  * @param nacionalidad nacionalidad del cliente
  * @param email correo electrónico del cliente
  * @param telefono teléfono del cliente
+ * @param username nombre de usuario para autenticación
+ * @param rawPassword contraseña sin procesar para aplicar hash
  */
 public record RegisterCustomerCommand(
         String nombres,
@@ -16,5 +18,7 @@ public record RegisterCustomerCommand(
         String documentoIdentidad,
         String nacionalidad,
         String email,
-        String telefono
+        String telefono,
+        String username,
+        String rawPassword
 ) { }

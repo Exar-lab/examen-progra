@@ -6,7 +6,10 @@ import com.buses.examen.Progra.fleet.adapter.in.web.dto.response.SeatResponse;
 import com.buses.examen.Progra.fleet.adapter.in.web.mapper.FleetWebMapper;
 import com.buses.examen.Progra.fleet.application.port.in.FleetQueryUseCase;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;

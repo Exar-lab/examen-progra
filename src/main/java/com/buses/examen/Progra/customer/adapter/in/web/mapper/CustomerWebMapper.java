@@ -27,7 +27,7 @@ public class CustomerWebMapper {
      */
     public RegisterCustomerCommand toCommand(final RegisterCustomerRequest request) {
         return new RegisterCustomerCommand(request.nombres(), request.apellidos(), request.documentoIdentidad(),
-                request.nacionalidad(), request.email(), request.telefono());
+                request.nacionalidad(), request.email(), request.telefono(), request.username(), request.password());
     }
 
     /**
@@ -38,9 +38,8 @@ public class CustomerWebMapper {
      * @return comando para registrar la tarjeta
      */
     public RegisterCardCommand toCommand(final Long clienteId, final RegisterCardRequest request) {
-        return new RegisterCardCommand(clienteId, request.titular(), request.marca(), request.ultimo4(),
-                YearMonth.parse(request.fechaExpiracion(), CARD_EXPIRATION_FORMATTER),
-                request.tokenReferencia(), request.enmascarada(), request.cvv());
+        return new RegisterCardCommand(clienteId, request.titular(), request.numeroTarjeta(),
+                YearMonth.parse(request.fechaExpiracion(), CARD_EXPIRATION_FORMATTER), request.cvv());
     }
 
     /**

@@ -50,7 +50,7 @@ class BusTicketJpaMappingTest {
         entityManager.persist(servicio);
         final Cliente cliente = new Cliente("A", "B", "123", "CR", "a@a.com", "999");
         entityManager.persist(cliente);
-        final Tarjeta tarjeta = Tarjeta.fromGatewayToken(cliente, "A B", "VISA", "1111", 12, 2030, "tok", "4111******1111", "999");
+        final Tarjeta tarjeta = Tarjeta.fromGatewayToken(cliente, "A B", "VISA", "1111", 12, 2030, "tok", "4111******1111");
         entityManager.persist(tarjeta);
 
         final Compra compra = new Compra(cliente, tarjeta, CanalCompra.WEB, "op", OffsetDateTime.now());
@@ -254,7 +254,7 @@ class BusTicketJpaMappingTest {
 
         final Cliente cliente = new Cliente("A", "B", "123", "CR", "a@a.com", "999");
         entityManager.persist(cliente);
-        final Tarjeta tarjeta = Tarjeta.fromGatewayToken(cliente, "A B", "VISA", "1111", 12, 2030, "tok", "4111******1111", "999");
+        final Tarjeta tarjeta = Tarjeta.fromGatewayToken(cliente, "A B", "VISA", "1111", 12, 2030, "tok", "4111******1111");
         entityManager.persist(tarjeta);
         entityManager.flush();
 

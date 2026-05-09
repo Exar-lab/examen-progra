@@ -22,6 +22,7 @@ public class Cliente {
     @Column(nullable = false) private String telefono;
     @Column(name = "puntos_acumulados", nullable = false) private int puntosAcumulados = 0;
     @Column(nullable = false) private boolean activo = true;
+    @OneToOne(mappedBy = "cliente", fetch = FetchType.LAZY) private UserSecurity userSecurity;
 
     /** Constructor requerido por JPA. */
     protected Cliente() {}

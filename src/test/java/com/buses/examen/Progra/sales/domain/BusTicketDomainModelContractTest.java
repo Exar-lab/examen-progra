@@ -72,7 +72,7 @@ class BusTicketDomainModelContractTest {
         final Ruta ruta = new Ruta(lima, cusco, 90, 120.0);
         final Servicio servicio = new Servicio(ruta, bus, OffsetDateTime.now().plusDays(3), OffsetDateTime.now().plusDays(3).plusHours(2), BigDecimal.valueOf(50.0), EstadoServicio.PROGRAMADO, 40);
         final Cliente cliente = new Cliente("Ana", "Perez", "12345678", "CR", "ana@mail.com", "999999999");
-        final Tarjeta tarjeta = Tarjeta.fromGatewayToken(cliente, "Ana Perez", "VISA", "1111", 12, 2030, "tok_123", "411111******1111", "999");
+        final Tarjeta tarjeta = Tarjeta.fromGatewayToken(cliente, "Ana Perez", "VISA", "1111", 12, 2030, "tok_123", "411111******1111");
         final Compra compra = new Compra(cliente, tarjeta, CanalCompra.WEB, "op-1", servicio.getSalidaProgramada().minusDays(1));
 
         compra.agregarTicket(Ticket.emitir(compra, servicio, cliente, asiento, "TKT-001", BigDecimal.valueOf(50L)));
