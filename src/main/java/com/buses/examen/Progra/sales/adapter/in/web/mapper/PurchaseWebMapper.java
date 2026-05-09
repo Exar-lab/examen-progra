@@ -3,8 +3,10 @@ package com.buses.examen.Progra.sales.adapter.in.web.mapper;
 import com.buses.examen.Progra.customer.application.AuthenticatedCustomer;
 import com.buses.examen.Progra.sales.adapter.in.web.dto.request.PurchaseRequest;
 import com.buses.examen.Progra.sales.adapter.in.web.dto.response.PurchaseResponse;
+import com.buses.examen.Progra.sales.adapter.in.web.dto.response.TicketResponse;
 import com.buses.examen.Progra.sales.application.command.PurchaseTicketsCommand;
 import com.buses.examen.Progra.sales.application.result.PurchaseTicketsResult;
+import com.buses.examen.Progra.sales.application.result.TicketViewResult;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
@@ -46,5 +48,19 @@ public class PurchaseWebMapper {
                 result.compraId(),
                 result.ticketCodes(),
                 result.comprobanteId());
+    }
+
+    /**
+     * Convierte una vista de ticket en DTO web.
+     *
+     * @param result ticket del caso de uso
+     * @return DTO de ticket para respuesta HTTP
+     */
+    public TicketResponse toTicketResponse(@NonNull final TicketViewResult result) {
+        return new TicketResponse(
+                result.ticketId(),
+                result.codigoTicket(),
+                result.precioFinal(),
+                result.fechaEmision());
     }
 }

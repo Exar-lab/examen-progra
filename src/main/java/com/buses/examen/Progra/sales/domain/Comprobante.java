@@ -79,4 +79,11 @@ public class Comprobante {
      * @return número del comprobante
      */
     public String getNumero() { return numero; }
+
+    /**
+     * Devuelve la compra asociada al comprobante.
+     *
+     * @return compra propietaria
+     */
+    public Compra getCompra() { return compra; }
 }

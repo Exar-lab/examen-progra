@@ -14,4 +14,13 @@ public interface ComprobantePdfPort {
      * @param comprobante comprobante emitido
      */
     void generateFor(Compra compra, Comprobante comprobante);
+
+    /**
+     * Renderiza el comprobante como bytes PDF para descarga.
+     *
+     * @param compra compra asociada
+     * @param comprobante comprobante emitido
+     * @return bytes del documento PDF
+     */
+    byte[] renderFor(Compra compra, Comprobante comprobante);
 }

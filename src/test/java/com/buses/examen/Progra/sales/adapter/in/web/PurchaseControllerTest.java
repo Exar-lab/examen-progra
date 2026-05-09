@@ -7,7 +7,10 @@ import com.buses.examen.Progra.customer.application.port.out.UserSecurityReposit
 import com.buses.examen.Progra.sales.adapter.in.web.mapper.PurchaseWebMapper;
 import com.buses.examen.Progra.sales.application.command.PurchaseTicketsCommand;
 import com.buses.examen.Progra.sales.application.port.in.PurchaseTicketsUseCase;
+import com.buses.examen.Progra.sales.application.port.in.SalesQueryUseCase;
+import com.buses.examen.Progra.sales.application.result.ComprobantePdfResult;
 import com.buses.examen.Progra.sales.application.result.PurchaseTicketsResult;
+import com.buses.examen.Progra.sales.application.result.TicketViewResult;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -17,6 +20,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
+import java.time.OffsetDateTime;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -38,6 +42,9 @@ class PurchaseControllerTest {
 
     @MockitoBean
     private PurchaseTicketsUseCase purchaseTicketsUseCase;
+
+    @MockitoBean
+    private SalesQueryUseCase salesQueryUseCase;
 
     @MockitoBean
     private UserSecurityRepositoryPort userSecurityRepositoryPort;
@@ -98,5 +105,35 @@ class PurchaseControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.compraId").value(1L))
                 .andExpect(jsonPath("$.comprobanteId").value(100L));
+    }
+
+    @Test
+    void shouldReturnAuthenticatedUserTickets() throws Exception {
+        final AuthenticatedCustomerPrincipal principal =
+                new AuthenticatedCustomerPrincipal(42L, "juanp", "$2a$10$hash", true, true);
+        when(salesQueryUseCase.listTicketsForCustomer(42L)).thenReturn(List.of(
+                new TicketViewResult(11L, "TK-001", java.math.BigDecimal.valueOf(20), OffsetDateTime.now())));
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/api/purchases/tickets")
+                        .with(user(principal)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].ticketId").value(11L))
+                .andExpect(jsonPath("$[0].codigoTicket").value("TK-001"));
+    }
+
+    @Test
+    void shouldDownloadPdfForAuthenticatedUser() throws Exception {
+        final AuthenticatedCustomerPrincipal principal =
+                new AuthenticatedCustomerPrincipal(42L, "juanp", "$2a$10$hash", true, true);
+        when(salesQueryUseCase.getComprobantePdf(42L, 99L))
+                .thenReturn(new ComprobantePdfResult("comprobante-CMP-1.pdf", new byte[]{1, 2, 3}));
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/api/purchases/receipts/99/pdf")
+                        .with(user(principal)))
+                .andExpect(status().isOk())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.header()
+                        .string("Content-Disposition", "attachment; filename=\"comprobante-CMP-1.pdf\""))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content()
+                        .contentType(MediaType.APPLICATION_PDF));
     }
 }

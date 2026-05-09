@@ -2,6 +2,7 @@ package com.buses.examen.Progra.sales.application.port.out;
 
 import com.buses.examen.Progra.sales.domain.Ticket;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -23,4 +24,12 @@ public interface TicketRepositoryPort {
      * @return ticket encontrado, si existe
      */
     Optional<Ticket> findByCodigoTicket(String codigoTicket);
+
+    /**
+     * Lista tickets por cliente ordenados desde el más reciente.
+     *
+     * @param clienteId identificador del cliente
+     * @return tickets del cliente
+     */
+    List<Ticket> findAllByClienteIdOrderByFechaEmisionDesc(Long clienteId);
 }

@@ -83,4 +83,11 @@ public class Ticket {
      */
     public String getCodigoTicket() { return codigoTicket; }
 
+    /**
+     * Devuelve la fecha/hora en la que se emitió el ticket.
+     *
+     * @return fecha de emisión
+     */
+    public OffsetDateTime getFechaEmision() { return fechaEmision; }
+
 }

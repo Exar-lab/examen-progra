@@ -11,11 +11,15 @@ import com.buses.examen.Progra.loyalty.application.port.out.MovimientoPuntosRepo
 import com.buses.examen.Progra.loyalty.domain.MovimientoPuntos;
 import com.buses.examen.Progra.sales.application.command.PurchaseTicketsCommand;
 import com.buses.examen.Progra.sales.application.port.in.PurchaseTicketsUseCase;
+import com.buses.examen.Progra.sales.application.port.in.SalesQueryUseCase;
+import com.buses.examen.Progra.sales.application.result.ComprobantePdfResult;
 import com.buses.examen.Progra.sales.application.port.out.*;
 import com.buses.examen.Progra.sales.application.result.PurchaseTicketsResult;
+import com.buses.examen.Progra.sales.application.result.TicketViewResult;
 import com.buses.examen.Progra.sales.domain.*;
 import com.buses.examen.Progra.sales.exception.MaxTicketsExceededException;
 import com.buses.examen.Progra.sales.exception.PurchaseWindowExpiredException;
+import com.buses.examen.Progra.sales.exception.ComprobanteNoEncontradoException;
 import com.buses.examen.Progra.sales.exception.TarjetaNoEncontradaException;
 import com.buses.examen.Progra.sales.exception.AsientoNoEncontradoException;
 import com.buses.examen.Progra.sales.exception.AsientoReservadoException;
@@ -30,12 +34,13 @@ import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Servicio de aplicación para orquestación de compra de tickets.
  */
 @Service
-public class SalesService implements PurchaseTicketsUseCase {
+public class SalesService implements PurchaseTicketsUseCase, SalesQueryUseCase {
     private static final int MAX_TICKETS_POR_COMPRA = 5;
     private static final int MAX_DIAS_ANTICIPACION_COMPRA = 7;
     private static final String COMPROBANTE_TIPO = "FACTURA";
@@ -77,12 +82,12 @@ public class SalesService implements PurchaseTicketsUseCase {
                         final AsientoRepositoryPort asientoRepositoryPort,
                         final ReservaAsientoRepositoryPort reservaAsientoRepositoryPort,
                         final TicketRepositoryPort ticketRepositoryPort,
-                         final CompraRepositoryPort compraRepositoryPort,
-                         final ComprobanteRepositoryPort comprobanteRepositoryPort,
-                         final MovimientoPuntosRepositoryPort movimientoPuntosRepositoryPort,
-                         final TicketCodeGeneratorPort ticketCodeGeneratorPort,
-                         final ComprobanteNumberGeneratorPort comprobanteNumberGeneratorPort,
-                         final ComprobantePdfPort comprobantePdfPort) {
+                        final CompraRepositoryPort compraRepositoryPort,
+                        final ComprobanteRepositoryPort comprobanteRepositoryPort,
+                        final MovimientoPuntosRepositoryPort movimientoPuntosRepositoryPort,
+                        final TicketCodeGeneratorPort ticketCodeGeneratorPort,
+                        final ComprobanteNumberGeneratorPort comprobanteNumberGeneratorPort,
+                        final ComprobantePdfPort comprobantePdfPort) {
         this.clienteRepositoryPort = clienteRepositoryPort;
         this.tarjetaRepositoryPort = tarjetaRepositoryPort;
         this.servicioRepositoryPort = servicioRepositoryPort;
@@ -123,6 +128,29 @@ public class SalesService implements PurchaseTicketsUseCase {
         comprobantePdfPort.generateFor(compraPersistida, comprobante);
 
         return new PurchaseTicketsResult(compraPersistida.getId(), ticketCodes, comprobante.getId());
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    @Transactional(readOnly = true)
+    public List<TicketViewResult> listTicketsForCustomer(final Long clienteId) {
+        return ticketRepositoryPort.findAllByClienteIdOrderByFechaEmisionDesc(clienteId).stream()
+                .map(ticket -> new TicketViewResult(
+                        ticket.getId(),
+                        ticket.getCodigoTicket(),
+                        ticket.getPrecioFinal(),
+                        ticket.getFechaEmision()))
+                .collect(Collectors.toList());
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    @Transactional(readOnly = true)
+    public ComprobantePdfResult getComprobantePdf(final Long clienteId, final Long comprobanteId) {
+        final Comprobante comprobante = comprobanteRepositoryPort.findByIdAndCompraClienteId(comprobanteId, clienteId)
+                .orElseThrow(() -> new ComprobanteNoEncontradoException(comprobanteId));
+        final byte[] pdf = comprobantePdfPort.renderFor(comprobante.getCompra(), comprobante);
+        return new ComprobantePdfResult("comprobante-" + comprobante.getNumero() + ".pdf", pdf);
     }
 
     private Cliente loadCliente(final Long clienteId) {

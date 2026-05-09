@@ -23,4 +23,13 @@ public interface ComprobanteRepositoryPort {
      * @return comprobante encontrado, si existe
      */
     Optional<Comprobante> findById(Long id);
+
+    /**
+     * Busca un comprobante validando que pertenezca al cliente indicado.
+     *
+     * @param comprobanteId id del comprobante
+     * @param clienteId id del cliente propietario
+     * @return comprobante encontrado, si pertenece al cliente
+     */
+    Optional<Comprobante> findByIdAndCompraClienteId(Long comprobanteId, Long clienteId);
 }

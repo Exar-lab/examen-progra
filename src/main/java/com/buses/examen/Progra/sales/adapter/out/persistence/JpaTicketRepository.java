@@ -4,6 +4,7 @@ import com.buses.examen.Progra.sales.application.port.out.TicketRepositoryPort;
 import com.buses.examen.Progra.sales.domain.Ticket;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -33,5 +34,11 @@ public class JpaTicketRepository implements TicketRepositoryPort {
     @Override
     public Optional<Ticket> findByCodigoTicket(final String codigoTicket) {
         return repository.findByCodigoTicket(codigoTicket);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public List<Ticket> findAllByClienteIdOrderByFechaEmisionDesc(final Long clienteId) {
+        return repository.findAllByClienteIdOrderByFechaEmisionDesc(clienteId);
     }
 }

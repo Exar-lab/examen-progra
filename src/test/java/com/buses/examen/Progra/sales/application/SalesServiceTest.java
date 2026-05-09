@@ -16,6 +16,9 @@ import com.buses.examen.Progra.sales.application.port.out.ReservaAsientoReposito
 import com.buses.examen.Progra.sales.application.port.out.TicketCodeGeneratorPort;
 import com.buses.examen.Progra.sales.application.port.out.TicketRepositoryPort;
 import com.buses.examen.Progra.sales.application.result.PurchaseTicketsResult;
+import com.buses.examen.Progra.sales.application.result.ComprobantePdfResult;
+import com.buses.examen.Progra.sales.application.result.TicketViewResult;
+import com.buses.examen.Progra.sales.domain.Comprobante;
 import com.buses.examen.Progra.sales.domain.Compra;
 import com.buses.examen.Progra.sales.domain.EstadoReservaAsiento;
 import com.buses.examen.Progra.sales.domain.ReservaAsiento;
@@ -36,6 +39,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -112,6 +116,34 @@ class SalesServiceTest {
                 .isTrue();
     }
 
+    @Test
+    void shouldListTicketsOnlyForAuthenticatedCustomer() {
+        final Fixture fixture = new Fixture();
+        when(fixture.ticketRepositoryPort.findAllByClienteIdOrderByFechaEmisionDesc(1L))
+                .thenReturn(List.of(fixture.ticket));
+
+        final List<TicketViewResult> tickets = fixture.service.listTicketsForCustomer(1L);
+
+        assertThat(tickets).hasSize(1);
+        assertThat(tickets.getFirst().codigoTicket()).isEqualTo("CODE-1");
+    }
+
+    @Test
+    void shouldReturnReceiptPdfForOwnedComprobante() {
+        final Fixture fixture = new Fixture();
+        final Comprobante comprobante = mock(Comprobante.class);
+        when(comprobante.getCompra()).thenReturn(mock(Compra.class));
+        when(comprobante.getNumero()).thenReturn("CMP-1");
+        when(fixture.comprobanteRepositoryPort.findByIdAndCompraClienteId(10L, 1L))
+                .thenReturn(Optional.of(comprobante));
+        when(fixture.comprobantePdfPort.renderFor(any(), eq(comprobante))).thenReturn(new byte[]{9, 9});
+
+        final ComprobantePdfResult result = fixture.service.getComprobantePdf(1L, 10L);
+
+        assertThat(result.fileName()).isEqualTo("comprobante-CMP-1.pdf");
+        assertThat(result.contentBytes()).containsExactly(9, 9);
+    }
+
     private static final class Fixture {
         private final ClienteRepositoryPort clienteRepositoryPort = mock(ClienteRepositoryPort.class);
         private final TarjetaRepositoryPort tarjetaRepositoryPort = mock(TarjetaRepositoryPort.class);
@@ -131,6 +163,7 @@ class SalesServiceTest {
         private final Servicio servicio = mock(Servicio.class);
         private final Asiento asientoOne = mock(Asiento.class);
         private final Asiento asientoTwo = mock(Asiento.class);
+        private final Ticket ticket = mock(Ticket.class);
 
         private final SalesService service = new SalesService(
                 clienteRepositoryPort,
@@ -166,6 +199,10 @@ class SalesServiceTest {
             when(comprobanteRepositoryPort.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
             when(reservaAsientoRepositoryPort.save(any(ReservaAsiento.class))).thenAnswer(invocation -> invocation.getArgument(0));
             when(movimientoPuntosRepositoryPort.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+            when(ticket.getId()).thenReturn(1L);
+            when(ticket.getCodigoTicket()).thenReturn("CODE-1");
+            when(ticket.getPrecioFinal()).thenReturn(BigDecimal.TEN);
+            when(ticket.getFechaEmision()).thenReturn(OffsetDateTime.now());
         }
     }
 }

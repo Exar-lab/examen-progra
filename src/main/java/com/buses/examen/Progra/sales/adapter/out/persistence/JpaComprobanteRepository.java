@@ -34,4 +34,10 @@ public class JpaComprobanteRepository implements ComprobanteRepositoryPort {
     public Optional<Comprobante> findById(final Long id) {
         return repository.findById(id);
     }
+
+    /** {@inheritDoc} */
+    @Override
+    public Optional<Comprobante> findByIdAndCompraClienteId(final Long comprobanteId, final Long clienteId) {
+        return repository.findByIdAndCompraClienteId(comprobanteId, clienteId);
+    }
 }
