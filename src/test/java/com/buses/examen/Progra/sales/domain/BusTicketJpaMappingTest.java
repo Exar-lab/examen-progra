@@ -48,9 +48,9 @@ class BusTicketJpaMappingTest {
         entityManager.persist(ruta);
         final Servicio servicio = new Servicio(ruta, bus, OffsetDateTime.now().plusDays(1), OffsetDateTime.now().plusDays(1).plusHours(2), BigDecimal.valueOf(40), EstadoServicio.PROGRAMADO, 2);
         entityManager.persist(servicio);
-        final Cliente cliente = new Cliente("A", "B", "123", "a@a.com", "999");
+        final Cliente cliente = new Cliente("A", "B", "123", "CR", "a@a.com", "999");
         entityManager.persist(cliente);
-        final Tarjeta tarjeta = Tarjeta.fromGatewayToken(cliente, "A B", "VISA", "1111", 12, 2030, "tok", "4111******1111", "999");
+        final Tarjeta tarjeta = Tarjeta.fromGatewayToken(cliente, "A B", "VISA", "1111", 12, 2030, "tok", "4111******1111");
         entityManager.persist(tarjeta);
 
         final Compra compra = new Compra(cliente, tarjeta, CanalCompra.WEB, "op", OffsetDateTime.now());
@@ -170,10 +170,10 @@ class BusTicketJpaMappingTest {
     /** Verifica el constraint uk_cliente_documento — el documento de identidad es único por cliente. */
     @Test
     void shouldRejectDuplicateClienteDocumento() {
-        entityManager.persist(new Cliente("Juan", "Perez", "DNI-001", "juan@mail.com", "111"));
+        entityManager.persist(new Cliente("Juan", "Perez", "DNI-001", "CR", "juan@mail.com", "111"));
         entityManager.flush();
         assertThatThrownBy(() -> {
-            entityManager.persist(new Cliente("Juan", "Otro", "DNI-001", "otro@mail.com", "222"));
+            entityManager.persist(new Cliente("Juan", "Otro", "DNI-001", "CR", "otro@mail.com", "222"));
             entityManager.flush();
         }).isInstanceOf(PersistenceException.class);
     }
@@ -181,10 +181,10 @@ class BusTicketJpaMappingTest {
     /** Verifica el constraint uk_cliente_email — el email es único por cliente. */
     @Test
     void shouldRejectDuplicateClienteEmail() {
-        entityManager.persist(new Cliente("Ana", "Lopez", "DNI-002", "ana@mail.com", "333"));
+        entityManager.persist(new Cliente("Ana", "Lopez", "DNI-002", "CR", "ana@mail.com", "333"));
         entityManager.flush();
         assertThatThrownBy(() -> {
-            entityManager.persist(new Cliente("Ana", "Otro", "DNI-003", "ana@mail.com", "444"));
+            entityManager.persist(new Cliente("Ana", "Otro", "DNI-003", "CR", "ana@mail.com", "444"));
             entityManager.flush();
         }).isInstanceOf(PersistenceException.class);
     }
@@ -252,9 +252,9 @@ class BusTicketJpaMappingTest {
         );
         entityManager.persist(servicio);
 
-        final Cliente cliente = new Cliente("A", "B", "123", "a@a.com", "999");
+        final Cliente cliente = new Cliente("A", "B", "123", "CR", "a@a.com", "999");
         entityManager.persist(cliente);
-        final Tarjeta tarjeta = Tarjeta.fromGatewayToken(cliente, "A B", "VISA", "1111", 12, 2030, "tok", "4111******1111", "999");
+        final Tarjeta tarjeta = Tarjeta.fromGatewayToken(cliente, "A B", "VISA", "1111", 12, 2030, "tok", "4111******1111");
         entityManager.persist(tarjeta);
         entityManager.flush();
 

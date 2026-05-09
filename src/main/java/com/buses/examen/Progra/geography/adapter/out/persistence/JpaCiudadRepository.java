@@ -4,6 +4,7 @@ import com.buses.examen.Progra.geography.application.port.out.CiudadRepositoryPo
 import com.buses.examen.Progra.geography.domain.Ciudad;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -32,5 +33,11 @@ public class JpaCiudadRepository implements CiudadRepositoryPort {
     @Override
     public Optional<Ciudad> findById(final Long id) {
         return repository.findById(id);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public List<Ciudad> findByPaisId(final Long paisId) {
+        return repository.findByPais_Id(paisId);
     }
 }

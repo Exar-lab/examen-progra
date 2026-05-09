@@ -4,6 +4,7 @@ import com.buses.examen.Progra.fleet.application.port.out.CompaniaRepositoryPort
 import com.buses.examen.Progra.fleet.domain.Compania;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -32,5 +33,11 @@ public class JpaCompaniaRepository implements CompaniaRepositoryPort {
     @Override
     public Optional<Compania> findById(final Long id) {
         return repository.findById(id);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public List<Compania> findAll() {
+        return repository.findAll();
     }
 }
