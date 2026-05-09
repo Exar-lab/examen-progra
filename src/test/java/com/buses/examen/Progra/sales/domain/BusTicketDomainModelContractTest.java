@@ -70,7 +70,7 @@ class BusTicketDomainModelContractTest {
         final Bus bus = new Bus(compania, "ABC-123", "Volvo 9700", 40);
         final Asiento asiento = new Asiento(bus, "1", 1, "REGULAR");
         final Ruta ruta = new Ruta(lima, cusco, 90, 120.0);
-        final Servicio servicio = new Servicio(ruta, bus, OffsetDateTime.now().plusDays(3), OffsetDateTime.now().plusDays(3).plusHours(2), 50.0, EstadoServicio.PROGRAMADO, 40);
+        final Servicio servicio = new Servicio(ruta, bus, OffsetDateTime.now().plusDays(3), OffsetDateTime.now().plusDays(3).plusHours(2), BigDecimal.valueOf(50), EstadoServicio.PROGRAMADO, 40);
         final Cliente cliente = new Cliente("Ana", "Perez", "12345678", "ana@mail.com", "999999999");
         final Tarjeta tarjeta = Tarjeta.fromGatewayToken(cliente, "Ana Perez", "VISA", "1111", 12, 2030, "tok_123", "411111******1111", "999");
         final Compra compra = new Compra(cliente, tarjeta, CanalCompra.WEB, "op-1", servicio.getSalidaProgramada().minusDays(1));
@@ -96,7 +96,7 @@ class BusTicketDomainModelContractTest {
         final Asiento asiento = new Asiento(bus, "1", 1, "REGULAR");
         final Ruta ruta = new Ruta(lima, cusco, 90, 120.0);
         final OffsetDateTime compraTime = OffsetDateTime.now();
-        final Servicio servicio = new Servicio(ruta, bus, compraTime.plusDays(2), compraTime.plusDays(2).plusHours(2), 50.0, EstadoServicio.PROGRAMADO, 40);
+        final Servicio servicio = new Servicio(ruta, bus, compraTime.plusDays(2), compraTime.plusDays(2).plusHours(2), BigDecimal.valueOf(50), EstadoServicio.PROGRAMADO, 40);
         final Cliente cliente = new Cliente("Ana", "Perez", "12345678", "ana@mail.com", "999999999");
         final Compra compra = new Compra(cliente, null, CanalCompra.WEB, "op-1", compraTime);
 
@@ -125,10 +125,10 @@ class BusTicketDomainModelContractTest {
         final Cliente cliente = new Cliente("Ana", "Perez", "12345678", "ana@mail.com", "999999999");
         final Compra compra = new Compra(cliente, null, CanalCompra.WEB, "op-1", purchaseTime);
 
-        final Servicio beforePurchase = new Servicio(ruta, bus, purchaseTime.minusMinutes(1), purchaseTime.plusHours(2), 50.0, EstadoServicio.PROGRAMADO, 40);
-        final Servicio allowedAtLowerBound = new Servicio(ruta, bus, purchaseTime, purchaseTime.plusHours(2), 50.0, EstadoServicio.PROGRAMADO, 40);
-        final Servicio allowedAtUpperBound = new Servicio(ruta, bus, purchaseTime.plusDays(7), purchaseTime.plusDays(7).plusHours(2), 50.0, EstadoServicio.PROGRAMADO, 40);
-        final Servicio denied = new Servicio(ruta, bus, purchaseTime.plusDays(8), purchaseTime.plusDays(8).plusHours(2), 50.0, EstadoServicio.PROGRAMADO, 40);
+        final Servicio beforePurchase = new Servicio(ruta, bus, purchaseTime.minusMinutes(1), purchaseTime.plusHours(2), BigDecimal.valueOf(50), EstadoServicio.PROGRAMADO, 40);
+        final Servicio allowedAtLowerBound = new Servicio(ruta, bus, purchaseTime, purchaseTime.plusHours(2), BigDecimal.valueOf(50), EstadoServicio.PROGRAMADO, 40);
+        final Servicio allowedAtUpperBound = new Servicio(ruta, bus, purchaseTime.plusDays(7), purchaseTime.plusDays(7).plusHours(2), BigDecimal.valueOf(50), EstadoServicio.PROGRAMADO, 40);
+        final Servicio denied = new Servicio(ruta, bus, purchaseTime.plusDays(8), purchaseTime.plusDays(8).plusHours(2), BigDecimal.valueOf(50), EstadoServicio.PROGRAMADO, 40);
 
         final Ticket lowerBoundTicket = Ticket.emitir(compra, allowedAtLowerBound, cliente, asiento, "TKT-ALLOW-LOW", BigDecimal.valueOf(50L));
         final Ticket upperBoundTicket = Ticket.emitir(compra, allowedAtUpperBound, cliente, asiento, "TKT-ALLOW-UP", BigDecimal.valueOf(50L));
@@ -162,7 +162,7 @@ class BusTicketDomainModelContractTest {
         final Bus bus = new Bus(compania, "ABC-123", "Volvo 9700", 2);
         final Ruta ruta = new Ruta(lima, cusco, 90, 120.0);
         final OffsetDateTime departure = OffsetDateTime.now().plusDays(1);
-        final Servicio servicio = new Servicio(ruta, bus, departure, departure.plusHours(2), 50.0, EstadoServicio.PROGRAMADO, 2);
+        final Servicio servicio = new Servicio(ruta, bus, departure, departure.plusHours(2), BigDecimal.valueOf(50), EstadoServicio.PROGRAMADO, 2);
 
         servicio.reservarCupo();
         servicio.reservarCupo();

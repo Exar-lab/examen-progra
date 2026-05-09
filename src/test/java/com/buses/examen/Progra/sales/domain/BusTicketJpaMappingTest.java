@@ -46,7 +46,7 @@ class BusTicketJpaMappingTest {
         entityManager.persist(asientoUno);
         final Ruta ruta = new Ruta(origen, destino, 90, 120);
         entityManager.persist(ruta);
-        final Servicio servicio = new Servicio(ruta, bus, OffsetDateTime.now().plusDays(1), OffsetDateTime.now().plusDays(1).plusHours(2), 40, EstadoServicio.PROGRAMADO, 2);
+        final Servicio servicio = new Servicio(ruta, bus, OffsetDateTime.now().plusDays(1), OffsetDateTime.now().plusDays(1).plusHours(2), BigDecimal.valueOf(40), EstadoServicio.PROGRAMADO, 2);
         entityManager.persist(servicio);
         final Cliente cliente = new Cliente("A", "B", "123", "a@a.com", "999");
         entityManager.persist(cliente);
@@ -246,7 +246,7 @@ class BusTicketJpaMappingTest {
                 bus,
                 OffsetDateTime.now().plusDays(1),
                 OffsetDateTime.now().plusDays(1).plusHours(2),
-                40,
+                BigDecimal.valueOf(40),
                 EstadoServicio.PROGRAMADO,
                 2
         );

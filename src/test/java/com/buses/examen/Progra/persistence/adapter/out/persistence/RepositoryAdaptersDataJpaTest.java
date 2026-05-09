@@ -201,7 +201,7 @@ class RepositoryAdaptersDataJpaTest {
                 bus,
                 OffsetDateTime.now().plusDays(1),
                 OffsetDateTime.now().plusDays(1).plusHours(4),
-                30,
+                BigDecimal.valueOf(30),
                 EstadoServicio.PROGRAMADO,
                 40
         );
@@ -229,7 +229,7 @@ class RepositoryAdaptersDataJpaTest {
                 graph.bus,
                 OffsetDateTime.now().plusHours(3),
                 OffsetDateTime.now().plusHours(6),
-                25,
+                BigDecimal.valueOf(25),
                 EstadoServicio.PROGRAMADO,
                 40
         );
@@ -238,7 +238,7 @@ class RepositoryAdaptersDataJpaTest {
                 graph.bus,
                 OffsetDateTime.now().plusDays(3),
                 OffsetDateTime.now().plusDays(3).plusHours(2),
-                25,
+                BigDecimal.valueOf(25),
                 EstadoServicio.PROGRAMADO,
                 40
         );
