@@ -2,6 +2,7 @@ package com.buses.examen.Progra.sales.adapter.in.web;
 
 import com.buses.examen.Progra.customer.application.AuthenticatedCustomer;
 import com.buses.examen.Progra.sales.adapter.in.web.dto.request.PurchaseRequest;
+import com.buses.examen.Progra.sales.adapter.in.web.dto.response.ComprobanteResponse;
 import com.buses.examen.Progra.sales.adapter.in.web.dto.response.PurchaseResponse;
 import com.buses.examen.Progra.sales.adapter.in.web.dto.response.TicketResponse;
 import com.buses.examen.Progra.sales.adapter.in.web.mapper.PurchaseWebMapper;
@@ -83,6 +84,22 @@ public class PurchaseController {
         final List<TicketResponse> response = salesQueryUseCase.listTicketsForCustomer(principal.clienteId()).stream()
                 .map(mapper::toTicketResponse)
                 .toList();
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Obtiene los datos del comprobante para que el frontend construya el PDF.
+     *
+     * @param comprobanteId identificador del comprobante
+     * @param principal     principal autenticado
+     * @return datos del comprobante en JSON
+     */
+    @GetMapping("/receipts/{comprobanteId}")
+    public ResponseEntity<ComprobanteResponse> getReceipt(
+            @PathVariable final Long comprobanteId,
+            @AuthenticationPrincipal final AuthenticatedCustomer principal) {
+        final ComprobanteResponse response = mapper.toComprobanteResponse(
+                salesQueryUseCase.getComprobanteJson(principal.clienteId(), comprobanteId));
         return ResponseEntity.ok(response);
     }
 

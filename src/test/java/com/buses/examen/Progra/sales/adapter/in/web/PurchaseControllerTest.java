@@ -8,6 +8,7 @@ import com.buses.examen.Progra.sales.adapter.in.web.mapper.PurchaseWebMapper;
 import com.buses.examen.Progra.sales.application.command.PurchaseTicketsCommand;
 import com.buses.examen.Progra.sales.application.port.in.PurchaseTicketsUseCase;
 import com.buses.examen.Progra.sales.application.port.in.SalesQueryUseCase;
+import com.buses.examen.Progra.sales.application.result.ComprobanteJsonResult;
 import com.buses.examen.Progra.sales.application.result.ComprobantePdfResult;
 import com.buses.examen.Progra.sales.application.result.PurchaseTicketsResult;
 import com.buses.examen.Progra.sales.application.result.TicketViewResult;
@@ -119,6 +120,34 @@ class PurchaseControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].ticketId").value(11L))
                 .andExpect(jsonPath("$[0].codigoTicket").value("TK-001"));
+    }
+
+    @Test
+    void shouldReturnReceiptJsonForAuthenticatedUser() throws Exception {
+        final AuthenticatedCustomerPrincipal principal =
+                new AuthenticatedCustomerPrincipal(42L, "juanp", "$2a$10$hash", true, true);
+        when(salesQueryUseCase.getComprobanteJson(42L, 99L))
+                .thenReturn(new ComprobanteJsonResult(
+                        99L,
+                        "CMP-1",
+                        "F001",
+                        "FACTURA",
+                        OffsetDateTime.now(),
+                        java.math.BigDecimal.valueOf(20),
+                        "CRC",
+                        "Juan Perez",
+                        "juan@example.com",
+                        List.of(new ComprobanteJsonResult.TicketComprobanteResult(
+                                "TK-001", java.math.BigDecimal.TEN, 5L, 3L, OffsetDateTime.now())),
+                        OffsetDateTime.now()));
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/api/purchases/receipts/99")
+                        .with(user(principal)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.comprobanteId").value(99L))
+                .andExpect(jsonPath("$.numero").value("CMP-1"))
+                .andExpect(jsonPath("$.clienteNombre").value("Juan Perez"))
+                .andExpect(jsonPath("$.tickets[0].codigo").value("TK-001"));
     }
 
     @Test

@@ -12,6 +12,7 @@ import com.buses.examen.Progra.loyalty.domain.MovimientoPuntos;
 import com.buses.examen.Progra.sales.application.command.PurchaseTicketsCommand;
 import com.buses.examen.Progra.sales.application.port.in.PurchaseTicketsUseCase;
 import com.buses.examen.Progra.sales.application.port.in.SalesQueryUseCase;
+import com.buses.examen.Progra.sales.application.result.ComprobanteJsonResult;
 import com.buses.examen.Progra.sales.application.result.ComprobantePdfResult;
 import com.buses.examen.Progra.sales.application.port.out.*;
 import com.buses.examen.Progra.sales.application.result.PurchaseTicketsResult;
@@ -151,6 +152,40 @@ public class SalesService implements PurchaseTicketsUseCase, SalesQueryUseCase {
                 .orElseThrow(() -> new ComprobanteNoEncontradoException(comprobanteId));
         final byte[] pdf = comprobantePdfPort.renderFor(comprobante.getCompra(), comprobante);
         return new ComprobantePdfResult("comprobante-" + comprobante.getNumero() + ".pdf", pdf);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    @Transactional(readOnly = true)
+    public ComprobanteJsonResult getComprobanteJson(final Long clienteId, final Long comprobanteId) {
+        final Comprobante comprobante = comprobanteRepositoryPort.findByIdAndCompraClienteId(comprobanteId, clienteId)
+                .orElseThrow(() -> new ComprobanteNoEncontradoException(comprobanteId));
+        final Compra compra = comprobante.getCompra();
+        final Cliente cliente = compra.getCliente();
+        return new ComprobanteJsonResult(
+                comprobante.getId(),
+                comprobante.getNumero(),
+                comprobante.getSerie(),
+                comprobante.getTipo(),
+                comprobante.getFechaEmision(),
+                comprobante.getMontoTotal(),
+                comprobante.getMoneda(),
+                cliente.getNombres() + " " + cliente.getApellidos(),
+                cliente.getEmail(),
+                compra.getTickets().stream()
+                        .map(this::toTicketComprobanteResult)
+                        .toList(),
+                compra.getFechaCompra());
+    }
+
+    private ComprobanteJsonResult.TicketComprobanteResult toTicketComprobanteResult(final Ticket ticket) {
+        final Servicio servicio = ticket.getServicio();
+        return new ComprobanteJsonResult.TicketComprobanteResult(
+                ticket.getCodigoTicket(),
+                ticket.getPrecioFinal(),
+                servicio.getId(),
+                servicio.getRutaId(),
+                servicio.getSalidaProgramada());
     }
 
     private Cliente loadCliente(final Long clienteId) {

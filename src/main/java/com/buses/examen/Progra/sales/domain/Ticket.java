@@ -90,4 +90,11 @@ public class Ticket {
      */
     public OffsetDateTime getFechaEmision() { return fechaEmision; }
 
+    /**
+     * Devuelve el servicio asociado al ticket.
+     *
+     * @return servicio de viaje
+     */
+    public Servicio getServicio() { return servicio; }
+
 }

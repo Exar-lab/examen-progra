@@ -2,9 +2,11 @@ package com.buses.examen.Progra.sales.adapter.in.web.mapper;
 
 import com.buses.examen.Progra.customer.application.AuthenticatedCustomer;
 import com.buses.examen.Progra.sales.adapter.in.web.dto.request.PurchaseRequest;
+import com.buses.examen.Progra.sales.adapter.in.web.dto.response.ComprobanteResponse;
 import com.buses.examen.Progra.sales.adapter.in.web.dto.response.PurchaseResponse;
 import com.buses.examen.Progra.sales.adapter.in.web.dto.response.TicketResponse;
 import com.buses.examen.Progra.sales.application.command.PurchaseTicketsCommand;
+import com.buses.examen.Progra.sales.application.result.ComprobanteJsonResult;
 import com.buses.examen.Progra.sales.application.result.PurchaseTicketsResult;
 import com.buses.examen.Progra.sales.application.result.TicketViewResult;
 import org.springframework.lang.NonNull;
@@ -62,5 +64,38 @@ public class PurchaseWebMapper {
                 result.codigoTicket(),
                 result.precioFinal(),
                 result.fechaEmision());
+    }
+
+    /**
+     * Convierte los datos del comprobante en DTO web para que el frontend genere el PDF.
+     *
+     * @param result comprobante del caso de uso
+     * @return DTO de comprobante para respuesta HTTP
+     */
+    public ComprobanteResponse toComprobanteResponse(@NonNull final ComprobanteJsonResult result) {
+        return new ComprobanteResponse(
+                result.comprobanteId(),
+                result.numero(),
+                result.serie(),
+                result.tipo(),
+                result.fechaEmision(),
+                result.montoTotal(),
+                result.moneda(),
+                result.clienteNombre(),
+                result.clienteEmail(),
+                result.tickets().stream()
+                        .map(this::toTicketComprobanteResponse)
+                        .toList(),
+                result.fechaCompra());
+    }
+
+    private ComprobanteResponse.TicketComprobanteResponse toTicketComprobanteResponse(
+            final ComprobanteJsonResult.TicketComprobanteResult result) {
+        return new ComprobanteResponse.TicketComprobanteResponse(
+                result.codigo(),
+                result.precio(),
+                result.servicioId(),
+                result.rutaId(),
+                result.salidaProgramada());
     }
 }

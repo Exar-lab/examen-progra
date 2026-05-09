@@ -81,6 +81,41 @@ public class Comprobante {
     public String getNumero() { return numero; }
 
     /**
+     * Devuelve el tipo documental del comprobante.
+     *
+     * @return tipo de comprobante
+     */
+    public String getTipo() { return tipo; }
+
+    /**
+     * Devuelve la serie documental del comprobante.
+     *
+     * @return serie documental
+     */
+    public String getSerie() { return serie; }
+
+    /**
+     * Devuelve la fecha y hora de emisión del comprobante.
+     *
+     * @return fecha de emisión
+     */
+    public OffsetDateTime getFechaEmision() { return fechaEmision; }
+
+    /**
+     * Devuelve el monto total facturado.
+     *
+     * @return monto total
+     */
+    public BigDecimal getMontoTotal() { return montoTotal; }
+
+    /**
+     * Devuelve la moneda del comprobante.
+     *
+     * @return moneda
+     */
+    public String getMoneda() { return moneda; }
+
+    /**
      * Devuelve la compra asociada al comprobante.
      *
      * @return compra propietaria

@@ -86,6 +86,13 @@ public class Compra {
     public Long getId() { return id; }
 
     /**
+     * Devuelve el cliente que realizó la compra.
+     *
+     * @return cliente comprador
+     */
+    public Cliente getCliente() { return cliente; }
+
+    /**
      * Devuelve el comprobante emitido para esta compra.
      *
      * @return comprobante o {@code null} si aún no fue emitido

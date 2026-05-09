@@ -16,6 +16,7 @@ import com.buses.examen.Progra.sales.application.port.out.ReservaAsientoReposito
 import com.buses.examen.Progra.sales.application.port.out.TicketCodeGeneratorPort;
 import com.buses.examen.Progra.sales.application.port.out.TicketRepositoryPort;
 import com.buses.examen.Progra.sales.application.result.PurchaseTicketsResult;
+import com.buses.examen.Progra.sales.application.result.ComprobanteJsonResult;
 import com.buses.examen.Progra.sales.application.result.ComprobantePdfResult;
 import com.buses.examen.Progra.sales.application.result.TicketViewResult;
 import com.buses.examen.Progra.sales.domain.Comprobante;
@@ -142,6 +143,46 @@ class SalesServiceTest {
 
         assertThat(result.fileName()).isEqualTo("comprobante-CMP-1.pdf");
         assertThat(result.contentBytes()).containsExactly(9, 9);
+    }
+
+    @Test
+    void shouldReturnReceiptJsonForOwnedComprobante() {
+        final Fixture fixture = new Fixture();
+        final Comprobante comprobante = mock(Comprobante.class);
+        final Compra compra = mock(Compra.class);
+        final Cliente cliente = mock(Cliente.class);
+        final Ticket ticket = mock(Ticket.class);
+
+        when(fixture.comprobanteRepositoryPort.findByIdAndCompraClienteId(10L, 1L))
+                .thenReturn(Optional.of(comprobante));
+        when(comprobante.getCompra()).thenReturn(compra);
+        when(comprobante.getId()).thenReturn(10L);
+        when(comprobante.getNumero()).thenReturn("CMP-1");
+        when(comprobante.getSerie()).thenReturn("F001");
+        when(comprobante.getTipo()).thenReturn("FACTURA");
+        when(comprobante.getFechaEmision()).thenReturn(OffsetDateTime.now());
+        when(comprobante.getMontoTotal()).thenReturn(BigDecimal.TEN);
+        when(comprobante.getMoneda()).thenReturn("CRC");
+        when(compra.getCliente()).thenReturn(cliente);
+        when(compra.getTickets()).thenReturn(List.of(ticket));
+        when(compra.getFechaCompra()).thenReturn(OffsetDateTime.now());
+        when(cliente.getNombres()).thenReturn("Juan");
+        when(cliente.getApellidos()).thenReturn("Perez");
+        when(cliente.getEmail()).thenReturn("juan@example.com");
+        when(ticket.getCodigoTicket()).thenReturn("TK-1");
+        when(ticket.getPrecioFinal()).thenReturn(BigDecimal.TEN);
+        when(ticket.getServicio()).thenReturn(fixture.servicio);
+        when(fixture.servicio.getId()).thenReturn(3L);
+        when(fixture.servicio.getRutaId()).thenReturn(7L);
+
+        final ComprobanteJsonResult result = fixture.service.getComprobanteJson(1L, 10L);
+
+        assertThat(result.comprobanteId()).isEqualTo(10L);
+        assertThat(result.numero()).isEqualTo("CMP-1");
+        assertThat(result.clienteNombre()).isEqualTo("Juan Perez");
+        assertThat(result.tickets()).hasSize(1);
+        assertThat(result.tickets().getFirst().codigo()).isEqualTo("TK-1");
+        assertThat(result.tickets().getFirst().rutaId()).isEqualTo(7L);
     }
 
     private static final class Fixture {

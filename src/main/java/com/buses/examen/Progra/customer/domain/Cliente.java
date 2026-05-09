@@ -54,4 +54,25 @@ public class Cliente {
      * @return id generado por la base de datos
      */
     public Long getId() { return id; }
+
+    /**
+     * Devuelve los nombres del cliente.
+     *
+     * @return nombres del cliente
+     */
+    public String getNombres() { return nombres; }
+
+    /**
+     * Devuelve los apellidos del cliente.
+     *
+     * @return apellidos del cliente
+     */
+    public String getApellidos() { return apellidos; }
+
+    /**
+     * Devuelve el correo electrónico de contacto.
+     *
+     * @return email del cliente
+     */
+    public String getEmail() { return email; }
 }
