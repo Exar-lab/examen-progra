@@ -1,6 +1,7 @@
 package com.buses.examen.Progra.customer.domain;
 
 import jakarta.persistence.*;
+import org.springframework.lang.NonNull;
 
 /** Credenciales de autenticación de un cliente. */
 @Entity
@@ -43,13 +44,31 @@ public class UserSecurity {
      * @param enabled indica si la cuenta está habilitada
      * @param locked indica si la cuenta está bloqueada
      */
-    public UserSecurity(final Cliente cliente, final String username, final String passwordHash,
-                         final boolean enabled, final boolean locked) {
+    public UserSecurity(@NonNull final Cliente cliente, @NonNull final String username,
+                        @NonNull final String passwordHash, final boolean enabled, final boolean locked) {
         this.cliente = cliente;
         this.username = username;
         this.passwordHash = passwordHash;
         this.enabled = enabled;
         this.locked = locked;
+    }
+
+    /**
+     * Retorna el cliente dueño de estas credenciales.
+     *
+     * @return cliente asociado
+     */
+    public Cliente getCliente() {
+        return cliente;
+    }
+
+    /**
+     * Retorna el nombre de usuario para autenticación.
+     *
+     * @return username
+     */
+    public String getUsername() {
+        return username;
     }
 
     /**
@@ -59,5 +78,23 @@ public class UserSecurity {
      */
     public String getPasswordHash() {
         return passwordHash;
+    }
+
+    /**
+     * Indica si la cuenta está habilitada.
+     *
+     * @return {@code true} si la cuenta está habilitada
+     */
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    /**
+     * Indica si la cuenta está bloqueada.
+     *
+     * @return {@code true} si la cuenta está bloqueada
+     */
+    public boolean isLocked() {
+        return locked;
     }
 }
