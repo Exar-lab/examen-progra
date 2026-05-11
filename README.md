@@ -33,6 +33,21 @@ La aplicación debe permitir que clientes registrados compren tiquetes para serv
 
 El diseño del proyecto sigue **Arquitectura Hexagonal (Ports and Adapters)** para mantener el dominio aislado de detalles técnicos como controladores web, persistencia, seguridad o generación de PDF.
 
+### Flujo web actual
+
+- La compra se realiza desde `compra.html`.
+- Después de comprar, el ticket recién generado queda visible en pantalla.
+- El comprobante PDF se descarga desde ese mismo resumen.
+- La lista de `Mis tickets` se abre como una vista separada desde la barra superior o desde `index.html`.
+
+### Arquitectura actual
+
+- `sales` concentra la compra, consulta de tickets y comprobantes.
+- `adapter/in/web` expone los endpoints HTTP y valida la entrada web.
+- `adapter/out/persistence` contiene los repositorios JPA y el mapeo de entidades.
+- `adapter/out/pdf` genera el comprobante PDF como adaptador de salida.
+- La seguridad de sesión se mantiene fuera del dominio para no mezclar reglas de negocio con infraestructura.
+
 ---
 
 ## 🕒 Horarios y rutas de referencia
