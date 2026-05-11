@@ -6,8 +6,11 @@ import com.buses.examen.Progra.route.application.port.in.RouteQueryUseCase;
 import com.buses.examen.Progra.route.application.port.out.RoutePlannerPort;
 import com.buses.examen.Progra.route.application.port.out.RutaRepositoryPort;
 import com.buses.examen.Progra.route.domain.Ruta;
+import com.buses.examen.Progra.service.application.port.out.ServicioRepositoryPort;
+import com.buses.examen.Progra.service.domain.Servicio;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +22,7 @@ import java.util.Optional;
 public class RouteService implements RouteQueryUseCase {
     private final RutaRepositoryPort rutaRepositoryPort;
     private final RoutePlannerPort routePlannerPort;
+    private final ServicioRepositoryPort servicioRepositoryPort;
     private final RouteWebMapper mapper;
 
     /**
@@ -26,13 +30,16 @@ public class RouteService implements RouteQueryUseCase {
      *
      * @param rutaRepositoryPort puerto de rutas
      * @param routePlannerPort   puerto de planificación
+     * @param servicioRepositoryPort puerto de servicios programados
      * @param mapper mapper de dominio a DTOs web
      */
     public RouteService(final RutaRepositoryPort rutaRepositoryPort,
                         final RoutePlannerPort routePlannerPort,
+                        final ServicioRepositoryPort servicioRepositoryPort,
                         final RouteWebMapper mapper) {
         this.rutaRepositoryPort = rutaRepositoryPort;
         this.routePlannerPort = routePlannerPort;
+        this.servicioRepositoryPort = servicioRepositoryPort;
         this.mapper = mapper;
     }
 
@@ -59,6 +66,17 @@ public class RouteService implements RouteQueryUseCase {
     /** {@inheritDoc} */
     @Override
     public List<RouteCatalogResponse> catalog() {
-        return rutaRepositoryPort.findAll().stream().map(mapper::toCatalogResponse).toList();
+        final List<Servicio> servicios = servicioRepositoryPort.findAll();
+        return rutaRepositoryPort.findAll().stream()
+                .map(ruta -> mapper.toCatalogResponse(ruta, minimumPriceFor(ruta, servicios)))
+                .toList();
+    }
+
+    private BigDecimal minimumPriceFor(final Ruta ruta, final List<Servicio> servicios) {
+        return servicios.stream()
+                .filter(servicio -> ruta.getId().equals(servicio.getRuta().getId()))
+                .map(Servicio::getPrecioBase)
+                .min(BigDecimal::compareTo)
+                .orElse(null);
     }
 }

@@ -7,6 +7,7 @@ import com.buses.examen.Progra.route.application.port.out.RoutePlannerPort;
 import com.buses.examen.Progra.route.domain.Ruta;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 /** Mapper de dominio de rutas hacia DTOs web. */
@@ -42,6 +43,17 @@ public class RouteWebMapper {
      * @return respuesta HTTP de catálogo de ruta
      */
     public RouteCatalogResponse toCatalogResponse(final Ruta ruta) {
+        return toCatalogResponse(ruta, null);
+    }
+
+    /**
+     * Convierte una ruta de dominio a DTO de catálogo enriquecido para el frontend.
+     *
+     * @param ruta ruta de dominio
+     * @param basePrice precio base del servicio asociado
+     * @return respuesta HTTP de catálogo de ruta
+     */
+    public RouteCatalogResponse toCatalogResponse(final Ruta ruta, final BigDecimal basePrice) {
         final var origin = ruta.getCiudadOrigen().getPais();
         final var dest = ruta.getCiudadDestino().getPais();
         return new RouteCatalogResponse(
@@ -52,8 +64,8 @@ public class RouteWebMapper {
                 dest.getCodigoIso(),
                 dest.getNombre(),
                 COUNTRY_FLAGS.getOrDefault(dest.getCodigoIso(), "🏳️"),
-                ruta.getDuracionMinutos() / 60,
-                null
+                Math.abs(ruta.getDuracionMinutos()) / 60,
+                basePrice
         );
     }
 }
