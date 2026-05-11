@@ -6,4 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 interface SpringDataReservaAsientoRepository extends JpaRepository<ReservaAsiento, Long> {
     boolean existsByServicioIdAndAsientoIdAndEstadoReserva(Long servicioId, Long asientoId, EstadoReservaAsiento estadoReserva);
+
+    java.util.List<ReservaAsiento> findByServicio_IdAndEstadoReserva(Long servicioId, EstadoReservaAsiento estadoReserva);
 }

@@ -2,6 +2,7 @@ package com.buses.examen.Progra.config;
 
 import com.buses.examen.Progra.customer.domain.Cliente;
 import com.buses.examen.Progra.customer.domain.UserSecurity;
+import com.buses.examen.Progra.fleet.domain.Asiento;
 import com.buses.examen.Progra.fleet.domain.Bus;
 import com.buses.examen.Progra.fleet.domain.Compania;
 import com.buses.examen.Progra.geography.domain.Ciudad;
@@ -13,6 +14,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,22 +41,26 @@ public class BaseRouteServicePreloadInitializer implements ApplicationRunner {
     private static final int DEFAULT_ROUTE_DURATION_MINUTES = 480;
     private static final double DEFAULT_ROUTE_DISTANCE_KM = 500.0d;
     private static final int DEFAULT_TRIP_DURATION_HOURS = 8;
+    private static final String DEFAULT_SEAT_CATEGORY = "REGULAR";
 
-    private static final String BCRYPT_PASSWORD_HASH = "$2a$10$eImiTXuWVxfM37uY4JANjOL8R9P.3k5F8L1aY5yJG5QvXK1w5kYWy";
+    private static final String PRELOAD_PASSWORD = "password";
 
     private static final record PreloadCliente(String nombres, String apellidos, String documento,
                                                 String nacionalidad, String email, String telefono, String username) {}
 
     private final EntityManager entityManager;
+    private final PasswordEncoder passwordEncoder;
 
-    public BaseRouteServicePreloadInitializer(final EntityManager entityManager) {
+    public BaseRouteServicePreloadInitializer(final EntityManager entityManager, final PasswordEncoder passwordEncoder) {
         this.entityManager = entityManager;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     @Transactional
     public void run(final ApplicationArguments args) {
         final Bus busBase = ensureBaseBus();
+        ensureSeatsForBus(busBase);
 
         ensureService("CR", "Costa Rica", "NI", "Nicaragua", 3, 80, busBase);
         ensureService("CR", "Costa Rica", "ES", "El Salvador", 6, 120, busBase);
@@ -117,6 +123,15 @@ public class BaseRouteServicePreloadInitializer implements ApplicationRunner {
                     entityManager.persist(newBus);
                     return newBus;
                 });
+    }
+
+    private void ensureSeatsForBus(final Bus bus) {
+        for (int seatNumber = 1; seatNumber <= BASE_BUS_CAPACITY; seatNumber++) {
+            final String seatLabel = String.valueOf(seatNumber);
+            if (findSeat(bus.getId(), seatLabel, 1).isEmpty()) {
+                entityManager.persist(new Asiento(bus, seatLabel, 1, DEFAULT_SEAT_CATEGORY));
+            }
+        }
     }
 
     private Pais ensureCountry(final String isoCode, final String countryName) {
@@ -224,6 +239,22 @@ public class BaseRouteServicePreloadInitializer implements ApplicationRunner {
                 .findFirst();
     }
 
+    private Optional<Asiento> findSeat(final Long busId, final String seatNumber, final int floor) {
+        return singleResult("""
+                select a
+                from Asiento a
+                where a.bus.id = :busId
+                  and a.numero = :seatNumber
+                  and a.piso = :floor
+                """, Asiento.class)
+                .setParameter("busId", busId)
+                .setParameter("seatNumber", seatNumber)
+                .setParameter("floor", floor)
+                .getResultList()
+                .stream()
+                .findFirst();
+    }
+
     private void ensurePreloadClientes() {
         final var clientesPrecargados = new PreloadCliente[] {
             new PreloadCliente("Juan", "Pérez", "155012345678", "Costa Rica", "juan.perez@correo.com", "8888-1111", "juanperez"),
@@ -234,15 +265,40 @@ public class BaseRouteServicePreloadInitializer implements ApplicationRunner {
         };
 
         for (final PreloadCliente c : clientesPrecargados) {
-            if (findClientByDocument(c.documento()).isEmpty()) {
-                final Cliente cliente = new Cliente(c.nombres(), c.apellidos(), c.documento(),
-                        c.nacionalidad(), c.email(), c.telefono());
-                entityManager.persist(cliente);
+            final Cliente cliente = findClientByDocument(c.documento())
+                    .orElseGet(() -> createPreloadCliente(c));
+            ensurePreloadUserSecurity(cliente, c.username());
+        }
+    }
 
-                final UserSecurity userSecurity = new UserSecurity(cliente, c.username(),
-                        BCRYPT_PASSWORD_HASH, true, false);
-                entityManager.persist(userSecurity);
-            }
+    private Cliente createPreloadCliente(final PreloadCliente c) {
+        final Cliente cliente = new Cliente(c.nombres(), c.apellidos(), c.documento(),
+                c.nacionalidad(), c.email(), c.telefono());
+        entityManager.persist(cliente);
+        return cliente;
+    }
+
+    private void ensurePreloadUserSecurity(final Cliente cliente, final String username) {
+        final String passwordHash = passwordEncoder.encode(PRELOAD_PASSWORD);
+        final Optional<UserSecurity> existingUserSecurity = findUserSecurityByUsername(username);
+
+        if (existingUserSecurity.isEmpty()) {
+            final UserSecurity userSecurity = new UserSecurity(cliente, username, passwordHash, true, false);
+            entityManager.persist(userSecurity);
+            return;
+        }
+
+        if (!passwordEncoder.matches(PRELOAD_PASSWORD, existingUserSecurity.get().getPasswordHash())) {
+            entityManager.createQuery("""
+                    update UserSecurity u
+                    set u.passwordHash = :passwordHash,
+                        u.enabled = true,
+                        u.locked = false
+                    where u.username = :username
+                    """)
+                    .setParameter("passwordHash", passwordHash)
+                    .setParameter("username", username)
+                    .executeUpdate();
         }
     }
 
@@ -253,6 +309,18 @@ public class BaseRouteServicePreloadInitializer implements ApplicationRunner {
                 where c.documentoIdentidad = :documento
                 """, Cliente.class)
                 .setParameter("documento", documento)
+                .getResultList()
+                .stream()
+                .findFirst();
+    }
+
+    private Optional<UserSecurity> findUserSecurityByUsername(final String username) {
+        return singleResult("""
+                select u
+                from UserSecurity u
+                where u.username = :username
+                """, UserSecurity.class)
+                .setParameter("username", username)
                 .getResultList()
                 .stream()
                 .findFirst();

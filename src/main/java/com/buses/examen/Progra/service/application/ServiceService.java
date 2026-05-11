@@ -83,6 +83,7 @@ public class ServiceService implements ServiceQueryUseCase {
         return new ServiceCatalogResponse(
                 servicio.getId(),
                 route.getId(),
+                servicio.getBus().getId(),
                 servicio.getSalidaProgramada(),
                 servicio.getCapacidadDisponible(),
                 servicio.getPrecioBase(),

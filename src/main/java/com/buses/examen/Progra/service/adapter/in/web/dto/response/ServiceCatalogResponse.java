@@ -11,6 +11,7 @@ import java.time.OffsetDateTime;
  * @param serviceId identificador del servicio
  * @param routeId identificador de la ruta
  * @param departure fecha y hora de salida
+ * @param busId identificador del bus asignado
  * @param availableSeats cupos disponibles
  * @param price precio del servicio
  * @param route datos enriquecidos de la ruta
@@ -18,6 +19,7 @@ import java.time.OffsetDateTime;
 public record ServiceCatalogResponse(
         Long serviceId,
         Long routeId,
+        Long busId,
         OffsetDateTime departure,
         int availableSeats,
         BigDecimal price,

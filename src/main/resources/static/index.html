@@ -556,7 +556,7 @@
       const user = Session.current();
       el.innerHTML = `
         <span class="nav-user">👤 <span>${user.nombre}</span></span>
-        <a href="compra.html" class="btn btn-secondary btn-sm">Mis Pasajes</a>
+        <a href="compra.html#tickets" class="btn btn-secondary btn-sm">Mis Pasajes</a>
         <button class="btn btn-ghost btn-sm" onclick="Session.logout()">Salir</button>
       `;
     }

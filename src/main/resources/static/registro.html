@@ -365,7 +365,16 @@
       });
       window.location.href = 'compra.html';
     } catch (error) {
-      showAlert(error.message || 'No se pudo registrar.');
+      const message = (error.message || '').toLowerCase();
+      if (message.includes('uk_cliente_documento') || message.includes('documento_identidad') || message.includes('duplicate entry')) {
+        showAlert('El documento ya está registrado.');
+      } else if (message.includes('uk_cliente_email') || message.includes('email')) {
+        showAlert('El correo electrónico ya está registrado.');
+      } else if (message.includes('tarjeta') || message.includes('numero_tarjeta') || message.includes('uk_tarjeta')) {
+        showAlert('La tarjeta ya está registrada.');
+      } else {
+        showAlert(error.message || 'No se pudo registrar.');
+      }
       btn.disabled = false;
       btn.innerHTML = 'Crear Cuenta Gratis';
     }

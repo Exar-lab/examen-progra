@@ -47,6 +47,13 @@ public class ReservaAsiento {
     public Ticket getTicket() { return ticket; }
 
     /**
+     * Devuelve el asiento bloqueado por esta reserva.
+     *
+     * @return asiento reservado
+     */
+    public Asiento getAsiento() { return asiento; }
+
+    /**
      * Vincula el ticket confirmado a esta reserva.
      *
      * @param ticket ticket que confirma la reserva

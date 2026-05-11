@@ -5,6 +5,7 @@ import com.buses.examen.Progra.sales.domain.EstadoReservaAsiento;
 import com.buses.examen.Progra.sales.domain.ReservaAsiento;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -34,6 +35,12 @@ public class JpaReservaAsientoRepository implements ReservaAsientoRepositoryPort
     @Override
     public boolean existsByServicioIdAndAsientoIdAndEstadoReserva(final Long servicioId, final Long asientoId, final EstadoReservaAsiento estadoReserva) {
         return repository.existsByServicioIdAndAsientoIdAndEstadoReserva(servicioId, asientoId, estadoReserva);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public List<ReservaAsiento> findByServicioIdAndEstadoReserva(final Long servicioId, final EstadoReservaAsiento estadoReserva) {
+        return repository.findByServicio_IdAndEstadoReserva(servicioId, estadoReserva);
     }
 
     /** {@inheritDoc} */

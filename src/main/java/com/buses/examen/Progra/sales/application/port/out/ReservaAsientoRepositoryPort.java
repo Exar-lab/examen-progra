@@ -3,6 +3,7 @@ package com.buses.examen.Progra.sales.application.port.out;
 import com.buses.examen.Progra.sales.domain.EstadoReservaAsiento;
 import com.buses.examen.Progra.sales.domain.ReservaAsiento;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -26,6 +27,15 @@ public interface ReservaAsientoRepositoryPort {
      * @return {@code true} si existe al menos una reserva
      */
     boolean existsByServicioIdAndAsientoIdAndEstadoReserva(Long servicioId, Long asientoId, EstadoReservaAsiento estadoReserva);
+
+    /**
+     * Lista las reservas de asiento para un servicio y estado concreto.
+     *
+     * @param servicioId identificador del servicio
+     * @param estadoReserva estado de reserva
+     * @return reservas encontradas
+     */
+    List<ReservaAsiento> findByServicioIdAndEstadoReserva(Long servicioId, EstadoReservaAsiento estadoReserva);
 
     /**
      * Busca una reserva por id.

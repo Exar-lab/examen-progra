@@ -14,6 +14,7 @@ import com.buses.examen.Progra.sales.application.port.in.PurchaseTicketsUseCase;
 import com.buses.examen.Progra.sales.application.port.in.SalesQueryUseCase;
 import com.buses.examen.Progra.sales.application.result.ComprobanteJsonResult;
 import com.buses.examen.Progra.sales.application.result.ComprobantePdfResult;
+import com.buses.examen.Progra.sales.application.result.OccupiedSeatResult;
 import com.buses.examen.Progra.sales.application.port.out.*;
 import com.buses.examen.Progra.sales.application.result.PurchaseTicketsResult;
 import com.buses.examen.Progra.sales.application.result.TicketViewResult;
@@ -118,11 +119,11 @@ public class SalesService implements PurchaseTicketsUseCase, SalesQueryUseCase {
         validatePurchaseWindow(fechaCompra, servicio);
         validateServiceCapacity(servicio, command.asientoIds().size());
 
-        final Compra compra = createCompra(command, cliente, tarjeta, fechaCompra);
-        buildTicketsForSeats(command, compra, cliente, servicio, ticketCodes);
+        final Compra compraPersistida = compraRepositoryPort.save(createCompra(command, cliente, tarjeta, fechaCompra));
+        buildTicketsForSeats(command, compraPersistida, cliente, servicio, ticketCodes);
 
         servicioRepositoryPort.save(servicio);
-        final Compra compraPersistida = compraRepositoryPort.save(compra);
+        compraRepositoryPort.save(compraPersistida);
         final Comprobante comprobante = emitComprobante(compraPersistida);
 
         recordLoyaltyMovement(cliente, compraPersistida);
@@ -176,6 +177,16 @@ public class SalesService implements PurchaseTicketsUseCase, SalesQueryUseCase {
                         .map(this::toTicketComprobanteResult)
                         .toList(),
                 compra.getFechaCompra());
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    @Transactional(readOnly = true)
+    public List<OccupiedSeatResult> listOccupiedSeatsForService(final Long servicioId) {
+        return reservaAsientoRepositoryPort.findByServicioIdAndEstadoReserva(servicioId, EstadoReservaAsiento.ACTIVA)
+                .stream()
+                .map(reserva -> new OccupiedSeatResult(reserva.getAsiento().getId()))
+                .toList();
     }
 
     private ComprobanteJsonResult.TicketComprobanteResult toTicketComprobanteResult(final Ticket ticket) {

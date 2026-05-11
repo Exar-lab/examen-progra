@@ -8,6 +8,7 @@ import com.buses.examen.Progra.sales.adapter.in.web.dto.response.TicketResponse;
 import com.buses.examen.Progra.sales.adapter.in.web.mapper.PurchaseWebMapper;
 import com.buses.examen.Progra.sales.application.port.in.PurchaseTicketsUseCase;
 import com.buses.examen.Progra.sales.application.port.in.SalesQueryUseCase;
+import com.buses.examen.Progra.sales.application.result.OccupiedSeatResult;
 import com.buses.examen.Progra.sales.application.result.ComprobantePdfResult;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
@@ -85,6 +86,17 @@ public class PurchaseController {
                 .map(mapper::toTicketResponse)
                 .toList();
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Lista los asientos ocupados de un servicio.
+     *
+     * @param servicioId identificador del servicio
+     * @return ids de asientos ocupados
+     */
+    @GetMapping("/services/{servicioId}/occupied-seats")
+    public ResponseEntity<List<OccupiedSeatResult>> listOccupiedSeats(@PathVariable final Long servicioId) {
+        return ResponseEntity.ok(salesQueryUseCase.listOccupiedSeatsForService(servicioId));
     }
 
     /**

@@ -2,6 +2,7 @@ package com.buses.examen.Progra.sales.application.port.in;
 
 import com.buses.examen.Progra.sales.application.result.ComprobanteJsonResult;
 import com.buses.examen.Progra.sales.application.result.ComprobantePdfResult;
+import com.buses.examen.Progra.sales.application.result.OccupiedSeatResult;
 import com.buses.examen.Progra.sales.application.result.TicketViewResult;
 
 import java.util.List;
@@ -36,4 +37,12 @@ public interface SalesQueryUseCase {
      * @return datos del comprobante para construcción en cliente
      */
     ComprobanteJsonResult getComprobanteJson(Long clienteId, Long comprobanteId);
+
+    /**
+     * Lista los asientos ocupados para un servicio específico.
+     *
+     * @param servicioId identificador del servicio
+     * @return lista de asientos ocupados
+     */
+    List<OccupiedSeatResult> listOccupiedSeatsForService(Long servicioId);
 }

@@ -147,7 +147,7 @@
       </a>
 
       <p class="text-center text-muted mt-3" style="font-size:0.78rem;">
-        Usuarios de prueba: victor, laura99, carlos_soto — Contraseña: Password123
+        Usuarios de prueba: juanperez, mariagonzalez, carlosrodriguez — Contraseña: password
       </p>
     </div>
   </div>
@@ -179,20 +179,22 @@
     const password = document.getElementById('password').value;
     const btn      = document.getElementById('submitBtn');
 
-    if (password.length < 8) {
-      showAlert('La contraseña debe tener al menos 8 caracteres.');
-      return;
-    }
-
     btn.innerHTML = '<span class="spinner"></span> Ingresando...';
     btn.disabled = true;
 
     try {
       await ApiClient.ensureCsrf();
-      const response = await ApiClient.post('/api/auth/login', {
+      const loginResponse = await ApiClient.post('/api/auth/login', {
         username: correo,
         password,
       });
+      const response = loginResponse && loginResponse.clienteId
+        ? loginResponse
+        : await ApiClient.get('/api/auth/me');
+
+      if (!response || !response.clienteId) {
+        throw new Error('No se pudo confirmar la sesión iniciada.');
+      }
 
       const nombre = correo;
       Session.save({
