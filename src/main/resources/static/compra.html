@@ -269,6 +269,15 @@
       color: #fff;
     }
 
+    .tickets-view {
+      display: none;
+    }
+
+    .tickets-view.active {
+      display: block;
+      animation: fadeUp 0.3s ease;
+    }
+
     @media (max-width: 900px) {
       .compra-layout { grid-template-columns: 1fr; }
       .resumen-box { position: static; }
@@ -317,11 +326,6 @@
         <div class="step" id="step-ind-4">
           <div class="step-num">4</div>
           <span class="step-label">Tiquete</span>
-        </div>
-        <div class="step-line"></div>
-        <div class="step" id="step-ind-5">
-          <div class="step-num">5</div>
-          <span class="step-label">Mis tickets</span>
         </div>
       </div>
 
@@ -422,26 +426,11 @@
               <button class="btn btn-secondary btn-lg" onclick="descargarPDF()">
                 📄 Descargar PDF
               </button>
+              <button class="btn btn-outline btn-lg" onclick="abrirMisTickets()">
+                🎫 Mis tickets
+              </button>
               <a href="compra.html" class="btn btn-outline btn-lg">
                 Comprar otro pasaje
-              </a>
-            </div>
-          </div>
-
-          <!-- PASO 5: Mis tickets -->
-          <div class="step-panel" id="panel-5">
-            <div class="flex-between mb-3">
-              <h3 style="font-family:var(--font-display); font-size:1.3rem; letter-spacing:1px;">
-                MIS TICKETS
-              </h3>
-              <button class="btn btn-outline btn-sm" onclick="cargarMisTickets()">↻ Actualizar</button>
-            </div>
-
-            <div id="ticketsList" class="grid gap-2"></div>
-
-            <div class="mt-3">
-              <a href="index.html" class="btn btn-outline btn-lg">
-                ← Volver al menú principal
               </a>
             </div>
           </div>
@@ -473,6 +462,23 @@
         </div>
 
       </div>
+
+      <div id="ticketsView" class="tickets-view mt-4">
+        <div class="card">
+          <div class="flex-between mb-3">
+            <h3 style="font-family:var(--font-display); font-size:1.3rem; letter-spacing:1px;">
+              MIS TICKETS
+            </h3>
+            <div class="flex gap-2">
+              <button class="btn btn-outline btn-sm" onclick="cargarMisTickets()">↻ Actualizar</button>
+              <button class="btn btn-outline btn-sm" onclick="volverACompra()">← Volver a compra</button>
+            </div>
+          </div>
+
+          <div id="ticketsList" class="grid gap-2"></div>
+        </div>
+      </div>
+
     </div>
   </section>
 </div>
@@ -524,6 +530,17 @@
     });
     // Actualizar num done
     document.querySelectorAll('.step.done .step-num').forEach(el => { el.textContent = '✓'; });
+  }
+
+  function abrirMisTickets() {
+    document.querySelector('.compra-layout').style.display = 'none';
+    document.getElementById('ticketsView').classList.add('active');
+    cargarMisTickets();
+  }
+
+  function volverACompra() {
+    document.getElementById('ticketsView').classList.remove('active');
+    document.querySelector('.compra-layout').style.display = '';
   }
 
   async function cargarMisTickets() {
@@ -792,7 +809,7 @@
       const receipt = await ApiClient.get(`/api/purchases/receipts/${purchaseResponse.comprobanteId}`);
       renderReceipt(receipt);
       await cargarMisTickets();
-      goStep(5);
+      goStep(4);
     } catch (error) {
       mostrarAlerta(error.message || 'No se pudo completar la compra.', 'error');
       btn.disabled = false;
@@ -884,6 +901,7 @@
     currentUser = Session.current();
     navEl.innerHTML = `
       <span class="nav-user">👤 <span>${currentUser.nombre}</span></span>
+      <button class="btn btn-ghost btn-sm" onclick="abrirMisTickets()">Mis tickets</button>
       <button class="btn btn-ghost btn-sm" onclick="Session.logout()">Salir</button>
     `;
     document.getElementById('limiteDisplay').textContent = 'Máx. 5 (validado por servidor)';
@@ -892,9 +910,9 @@
       rutasCatalogo = await ApiClient.get('/api/routes/catalog');
       poblarPaises(rutasCatalogo);
 
-      if (window.location.hash === '#tickets') {
-        goStep(5);
-        await cargarMisTickets();
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('view') === 'tickets') {
+        abrirMisTickets();
       }
     } catch (error) {
       alert('No se pudo cargar el catálogo inicial.');
