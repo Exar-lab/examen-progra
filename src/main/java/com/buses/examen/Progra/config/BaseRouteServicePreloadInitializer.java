@@ -1,5 +1,7 @@
 package com.buses.examen.Progra.config;
 
+import com.buses.examen.Progra.customer.domain.Cliente;
+import com.buses.examen.Progra.customer.domain.UserSecurity;
 import com.buses.examen.Progra.fleet.domain.Bus;
 import com.buses.examen.Progra.fleet.domain.Compania;
 import com.buses.examen.Progra.geography.domain.Ciudad;
@@ -38,6 +40,11 @@ public class BaseRouteServicePreloadInitializer implements ApplicationRunner {
     private static final double DEFAULT_ROUTE_DISTANCE_KM = 500.0d;
     private static final int DEFAULT_TRIP_DURATION_HOURS = 8;
 
+    private static final String BCRYPT_PASSWORD_HASH = "$2a$10$eImiTXuWVxfM37uY4JANjOL8R9P.3k5F8L1aY5yJG5QvXK1w5kYWy";
+
+    private static final record PreloadCliente(String nombres, String apellidos, String documento,
+                                                String nacionalidad, String email, String telefono, String username) {}
+
     private final EntityManager entityManager;
 
     public BaseRouteServicePreloadInitializer(final EntityManager entityManager) {
@@ -62,6 +69,8 @@ public class BaseRouteServicePreloadInitializer implements ApplicationRunner {
         ensureService("GUA", "Guatemala", "NI", "Nicaragua", 5, 120, busBase);
         ensureService("NI", "Nicaragua", "CR", "Costa Rica", 3, 80, busBase);
         ensureService("NI", "Nicaragua", "CR", "Costa Rica", 6, 80, busBase);
+
+        ensurePreloadClientes();
     }
 
     private void ensureService(final String originCode, final String originName,
@@ -210,6 +219,40 @@ public class BaseRouteServicePreloadInitializer implements ApplicationRunner {
                 where b.placa = :plate
                 """, Bus.class)
                 .setParameter("plate", plate)
+                .getResultList()
+                .stream()
+                .findFirst();
+    }
+
+    private void ensurePreloadClientes() {
+        final var clientesPrecargados = new PreloadCliente[] {
+            new PreloadCliente("Juan", "Pérez", "155012345678", "Costa Rica", "juan.perez@correo.com", "8888-1111", "juanperez"),
+            new PreloadCliente("María", "González", "155987654321", "Costa Rica", "maria.gonzalez@correo.com", "8888-2222", "mariagonzalez"),
+            new PreloadCliente("Carlos", "Rodríguez", "155456789123", "Nicaragua", "carlos.rodriguez@correo.com", "8888-3333", "carlosrodriguez"),
+            new PreloadCliente("Ana", "López", "155789123456", "Guatemala", "ana.lopez@correo.com", "8888-4444", "analopez"),
+            new PreloadCliente("Luis", "Martínez", "155321654987", "Panamá", "luis.martinez@correo.com", "8888-5555", "luismartinez")
+        };
+
+        for (final PreloadCliente c : clientesPrecargados) {
+            if (findClientByDocument(c.documento()).isEmpty()) {
+                final Cliente cliente = new Cliente(c.nombres(), c.apellidos(), c.documento(),
+                        c.nacionalidad(), c.email(), c.telefono());
+                entityManager.persist(cliente);
+
+                final UserSecurity userSecurity = new UserSecurity(cliente, c.username(),
+                        BCRYPT_PASSWORD_HASH, true, false);
+                entityManager.persist(userSecurity);
+            }
+        }
+    }
+
+    private Optional<Cliente> findClientByDocument(final String documento) {
+        return singleResult("""
+                select c
+                from Cliente c
+                where c.documentoIdentidad = :documento
+                """, Cliente.class)
+                .setParameter("documento", documento)
                 .getResultList()
                 .stream()
                 .findFirst();
