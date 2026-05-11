@@ -157,7 +157,14 @@
 <script src="js/api-client.js"></script>
 <script src="js/session.js"></script>
 <script>
-  if (Session.isLoggedIn()) window.location.href = 'compra.html';
+  (async () => {
+    if (Session.isLoggedIn()) {
+      const me = await Session.syncWithServer();
+      if (me) {
+        window.location.href = 'compra.html';
+      }
+    }
+  })();
 
   function showAlert(msg, type = 'error') {
     document.getElementById('alertContainer').innerHTML = `

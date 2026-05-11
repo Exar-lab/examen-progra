@@ -429,11 +429,6 @@
 <script src="js/api-client.js"></script>
 <script src="js/session.js"></script>
 <script>
-  // ── Protección de sesión ────────────────────────────────
-  if (!Session.isLoggedIn()) {
-    window.location.href = 'login.html';
-  }
-
   let rutasCatalogo = [];
   let serviciosCatalogo = [];
   let selectedRuta = null;
@@ -443,14 +438,7 @@
 
   // Navbar
   const navEl = document.getElementById('navActions');
-  const currentUser = Session.current();
-  navEl.innerHTML = `
-    <span class="nav-user">👤 <span>${currentUser.nombre}</span></span>
-    <button class="btn btn-ghost btn-sm" onclick="Session.logout()">Salir</button>
-  `;
-
-  // Límite display (asumimos límite local por compra)
-  document.getElementById('limiteDisplay').textContent = `0 / 5`;
+  let currentUser = Session.current();
 
   // Poblar selects
   function poblarPaises(rutas) {
@@ -666,7 +654,6 @@
 
       const receipt = await ApiClient.get(`/api/purchases/receipts/${purchaseResponse.comprobanteId}`);
       renderReceipt(receipt);
-      document.getElementById('limiteDisplay').textContent = `1 / 5`;
       goStep(4);
     } catch (error) {
       mostrarAlerta(error.message || 'No se pudo completar la compra.', 'error');
@@ -746,6 +733,18 @@
   };
 
   async function inicializar() {
+    const authenticated = await Session.requireAuthenticated('login.html');
+    if (!authenticated) {
+      return;
+    }
+
+    currentUser = Session.current();
+    navEl.innerHTML = `
+      <span class="nav-user">👤 <span>${currentUser.nombre}</span></span>
+      <button class="btn btn-ghost btn-sm" onclick="Session.logout()">Salir</button>
+    `;
+    document.getElementById('limiteDisplay').textContent = 'Máx. 5 (validado por servidor)';
+
     try {
       rutasCatalogo = await ApiClient.get('/api/routes/catalog');
       poblarPaises(rutasCatalogo);

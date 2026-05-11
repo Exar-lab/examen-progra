@@ -22,6 +22,40 @@ const Session = (() => {
     return !!load();
   }
 
+  async function syncWithServer() {
+    if (!load()) {
+      return null;
+    }
+    try {
+      const me = await ApiClient.get('/api/auth/me');
+      const currentSession = load();
+      save({
+        id: me.clienteId,
+        nombre: currentSession?.nombre || me.username,
+        correo: currentSession?.correo || me.username,
+      });
+      return me;
+    } catch (error) {
+      if (error.status === 401 || error.status === 403) {
+        save(null);
+      }
+      return null;
+    }
+  }
+
+  async function requireAuthenticated(redirectTo = 'login.html') {
+    if (!isLoggedIn()) {
+      window.location.href = redirectTo;
+      return false;
+    }
+    const me = await syncWithServer();
+    if (!me) {
+      window.location.href = redirectTo;
+      return false;
+    }
+    return true;
+  }
+
   function current() {
     return load();
   }
@@ -37,5 +71,7 @@ const Session = (() => {
     isLoggedIn,
     current,
     logout,
+    syncWithServer,
+    requireAuthenticated,
   };
 })();

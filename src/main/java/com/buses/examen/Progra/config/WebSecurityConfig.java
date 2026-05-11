@@ -45,10 +45,12 @@ public class WebSecurityConfig {
                 // CSRF habilitado por defecto para sesiones basadas en navegador.
                 // Tests con mutating methods deben incluir .with(csrf())
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.GET, "/api/csrf").permitAll()
                         // Endpoints públicos: autenticación
                         .requestMatchers(HttpMethod.GET, "/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/auth/me").authenticated()
                         // Registro y consulta pública de clientes
                         .requestMatchers(HttpMethod.GET, "/api/customers/register").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/customers/document/**").permitAll()
