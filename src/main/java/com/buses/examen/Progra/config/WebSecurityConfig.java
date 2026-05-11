@@ -43,8 +43,13 @@ public class WebSecurityConfig {
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .permitAll())
-                // CSRF habilitado por defecto para sesiones basadas en navegador.
-                // Tests con mutating methods deben incluir .with(csrf())
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers(
+                                "/api/auth/login",
+                                "/api/customers",
+                                "/api/customers/*/cards",
+                                "/api/purchases"
+                        ))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.GET, "/api/csrf").permitAll()
                         // Endpoints públicos: autenticación
@@ -75,17 +80,18 @@ public class WebSecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/geography/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/fleet/**").permitAll()
                         // Todo lo demás: requiere autenticación
-                        // La autorización granular se controla con @PreAuthorize en cada controller
                         .anyRequest().authenticated());
 
         return http.build();
     }
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 }
