@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/Exar-lab/examen-progra/compare/v1.4.0...v1.5.0) (2026-05-11)
+
+
+### Features
+
+* **frontend:** connect static pages to real backend API with CSRF-aware client ([4aa8f6f](https://github.com/Exar-lab/examen-progra/commit/4aa8f6ff16510615f3562a917461d841ca66fde2))
+
 ## [1.4.0](https://github.com/Exar-lab/examen-progra/compare/v1.3.0...v1.4.0) (2026-05-09)
 
 
