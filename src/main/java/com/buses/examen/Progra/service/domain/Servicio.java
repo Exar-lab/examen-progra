@@ -7,6 +7,7 @@ import com.buses.examen.Progra.service.exception.CapacidadDisponibleInvalidaExce
 import jakarta.persistence.*;
 import org.springframework.lang.NonNull;
 
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 
 /**
@@ -20,7 +21,7 @@ public class Servicio {
     @ManyToOne(fetch = FetchType.LAZY, optional = false) @JoinColumn(name = "bus_id", nullable = false) private Bus bus;
     @Column(name = "salida_programada", nullable = false) private OffsetDateTime salidaProgramada;
     @Column(name = "llegada_programada", nullable = false) private OffsetDateTime llegadaProgramada;
-    @Column(name = "precio_base", nullable = false) private double precioBase;
+    @Column(name = "precio_base", nullable = false, precision = 12, scale = 2) private BigDecimal precioBase;
     @Enumerated(EnumType.STRING) @Column(nullable = false) private EstadoServicio estado;
     @Column(name = "capacidad_disponible", nullable = false) private int capacidadDisponible;
 
@@ -39,7 +40,7 @@ public class Servicio {
      * @param capacidadDisponible cupos disponibles para venta
      */
     public Servicio(@NonNull final Ruta ruta, @NonNull final Bus bus, @NonNull final OffsetDateTime salidaProgramada,
-                    @NonNull final OffsetDateTime llegadaProgramada, final double precioBase,
+                    @NonNull final OffsetDateTime llegadaProgramada, @NonNull final BigDecimal precioBase,
                     @NonNull final EstadoServicio estado, final int capacidadDisponible) {
         this.ruta = ruta;
         this.bus = bus;
@@ -72,6 +73,13 @@ public class Servicio {
     public Bus getBus() { return bus; }
 
     /**
+     * Devuelve el identificador de la ruta asociada.
+     *
+     * @return id de la ruta
+     */
+    public Long getRutaId() { return ruta.getId(); }
+
+    /**
      * Reserva un cupo del servicio, decrementando la capacidad disponible.
      *
      * @throws CapacidadAgotadaException            si no quedan cupos disponibles
@@ -93,4 +101,11 @@ public class Servicio {
      * @return cupos disponibles
      */
     public int getCapacidadDisponible() { return capacidadDisponible; }
+
+    /**
+     * Devuelve el precio base configurado para el servicio.
+     *
+     * @return precio base
+     */
+    public BigDecimal getPrecioBase() { return precioBase; }
 }

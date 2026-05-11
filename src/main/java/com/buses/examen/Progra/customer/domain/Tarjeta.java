@@ -40,15 +40,13 @@ public class Tarjeta {
      * @param anioExpiracion   año de expiración (ej. 2030)
      * @param tokenReferencia  token opaco de la pasarela de pago
      * @param enmascarada      representación enmascarada del PAN (ej. "4111******1111")
-     * @param cvv              CVV de sesión — se descarta y no se persiste
      * @return nueva tarjeta tokenizada
      * @throws MarcaTarjetaNoSoportadaException si {@code marca} no corresponde a ningún valor de {@link MarcaTarjeta}
      */
     public static Tarjeta fromGatewayToken(@NonNull final Cliente cliente, @NonNull final String titular,
-                                           @NonNull final String marca, @NonNull final String ultimo4,
-                                           final int mesExpiracion, final int anioExpiracion,
-                                           @NonNull final String tokenReferencia, @NonNull final String enmascarada,
-                                           final String cvv) {
+                                            @NonNull final String marca, @NonNull final String ultimo4,
+                                            final int mesExpiracion, final int anioExpiracion,
+                                            @NonNull final String tokenReferencia, @NonNull final String enmascarada) {
         final MarcaTarjeta marcaEnum;
         try {
             marcaEnum = MarcaTarjeta.valueOf(marca);

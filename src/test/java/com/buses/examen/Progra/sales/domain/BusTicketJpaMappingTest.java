@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,16 +46,16 @@ class BusTicketJpaMappingTest {
         entityManager.persist(asientoUno);
         final Ruta ruta = new Ruta(origen, destino, 90, 120);
         entityManager.persist(ruta);
-        final Servicio servicio = new Servicio(ruta, bus, OffsetDateTime.now().plusDays(1), OffsetDateTime.now().plusDays(1).plusHours(2), 40, EstadoServicio.PROGRAMADO, 2);
+        final Servicio servicio = new Servicio(ruta, bus, OffsetDateTime.now().plusDays(1), OffsetDateTime.now().plusDays(1).plusHours(2), BigDecimal.valueOf(40), EstadoServicio.PROGRAMADO, 2);
         entityManager.persist(servicio);
-        final Cliente cliente = new Cliente("A", "B", "123", "a@a.com", "999");
+        final Cliente cliente = new Cliente("A", "B", "123", "CR", "a@a.com", "999");
         entityManager.persist(cliente);
-        final Tarjeta tarjeta = Tarjeta.fromGatewayToken(cliente, "A B", "VISA", "1111", 12, 2030, "tok", "4111******1111", "999");
+        final Tarjeta tarjeta = Tarjeta.fromGatewayToken(cliente, "A B", "VISA", "1111", 12, 2030, "tok", "4111******1111");
         entityManager.persist(tarjeta);
 
         final Compra compra = new Compra(cliente, tarjeta, CanalCompra.WEB, "op", OffsetDateTime.now());
         entityManager.persist(compra);
-        final Ticket ticket = Ticket.emitir(compra, servicio, cliente, asientoUno, "TK-1", 40);
+        final Ticket ticket = Ticket.emitir(compra, servicio, cliente, asientoUno, "TK-1", BigDecimal.valueOf(40L));
         compra.agregarTicket(ticket);
         entityManager.persist(ticket);
 
@@ -77,8 +78,8 @@ class BusTicketJpaMappingTest {
         final Compra compra = new Compra(graph.cliente, graph.tarjeta, CanalCompra.WEB, "op-dup-ticket", OffsetDateTime.now());
         entityManager.persist(compra);
 
-        final Ticket first = Ticket.emitir(compra, graph.servicio, graph.cliente, graph.asientoUno, "TK-DUP", 40);
-        final Ticket duplicate = Ticket.emitir(compra, graph.servicio, graph.cliente, graph.asientoDos, "TK-DUP", 40);
+        final Ticket first = Ticket.emitir(compra, graph.servicio, graph.cliente, graph.asientoUno, "TK-DUP", BigDecimal.valueOf(40L));
+        final Ticket duplicate = Ticket.emitir(compra, graph.servicio, graph.cliente, graph.asientoDos, "TK-DUP", BigDecimal.valueOf(40L));
         compra.agregarTicket(first);
 
         entityManager.persist(first);
@@ -169,10 +170,10 @@ class BusTicketJpaMappingTest {
     /** Verifica el constraint uk_cliente_documento — el documento de identidad es único por cliente. */
     @Test
     void shouldRejectDuplicateClienteDocumento() {
-        entityManager.persist(new Cliente("Juan", "Perez", "DNI-001", "juan@mail.com", "111"));
+        entityManager.persist(new Cliente("Juan", "Perez", "DNI-001", "CR", "juan@mail.com", "111"));
         entityManager.flush();
         assertThatThrownBy(() -> {
-            entityManager.persist(new Cliente("Juan", "Otro", "DNI-001", "otro@mail.com", "222"));
+            entityManager.persist(new Cliente("Juan", "Otro", "DNI-001", "CR", "otro@mail.com", "222"));
             entityManager.flush();
         }).isInstanceOf(PersistenceException.class);
     }
@@ -180,10 +181,10 @@ class BusTicketJpaMappingTest {
     /** Verifica el constraint uk_cliente_email — el email es único por cliente. */
     @Test
     void shouldRejectDuplicateClienteEmail() {
-        entityManager.persist(new Cliente("Ana", "Lopez", "DNI-002", "ana@mail.com", "333"));
+        entityManager.persist(new Cliente("Ana", "Lopez", "DNI-002", "CR", "ana@mail.com", "333"));
         entityManager.flush();
         assertThatThrownBy(() -> {
-            entityManager.persist(new Cliente("Ana", "Otro", "DNI-003", "ana@mail.com", "444"));
+            entityManager.persist(new Cliente("Ana", "Otro", "DNI-003", "CR", "ana@mail.com", "444"));
             entityManager.flush();
         }).isInstanceOf(PersistenceException.class);
     }
@@ -245,15 +246,15 @@ class BusTicketJpaMappingTest {
                 bus,
                 OffsetDateTime.now().plusDays(1),
                 OffsetDateTime.now().plusDays(1).plusHours(2),
-                40,
+                BigDecimal.valueOf(40),
                 EstadoServicio.PROGRAMADO,
                 2
         );
         entityManager.persist(servicio);
 
-        final Cliente cliente = new Cliente("A", "B", "123", "a@a.com", "999");
+        final Cliente cliente = new Cliente("A", "B", "123", "CR", "a@a.com", "999");
         entityManager.persist(cliente);
-        final Tarjeta tarjeta = Tarjeta.fromGatewayToken(cliente, "A B", "VISA", "1111", 12, 2030, "tok", "4111******1111", "999");
+        final Tarjeta tarjeta = Tarjeta.fromGatewayToken(cliente, "A B", "VISA", "1111", 12, 2030, "tok", "4111******1111");
         entityManager.persist(tarjeta);
         entityManager.flush();
 
