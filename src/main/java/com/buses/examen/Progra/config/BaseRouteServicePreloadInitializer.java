@@ -32,7 +32,8 @@ public class BaseRouteServicePreloadInitializer implements ApplicationRunner {
     private static final String BASE_BUS_MODEL = "Marcopolo G7";
     private static final int BASE_BUS_CAPACITY = 50;
     private static final ZoneOffset CENTRAL_AMERICA_OFFSET = ZoneOffset.of("-06:00");
-    private static final LocalDate BASE_SERVICE_DATE = LocalDate.of(2030, 1, 1);
+    private static final LocalDate BASE_SERVICE_DATE = LocalDate.now(ZoneOffset.UTC);
+    private static final int SERVICE_WINDOW_DAYS = 7;
     private static final int DEFAULT_ROUTE_DURATION_MINUTES = 480;
     private static final double DEFAULT_ROUTE_DISTANCE_KM = 500.0d;
     private static final int DEFAULT_TRIP_DURATION_HOURS = 8;
@@ -73,23 +74,24 @@ public class BaseRouteServicePreloadInitializer implements ApplicationRunner {
         final Ciudad destinationCity = ensureCity(destinationCountry, destinationName, destinationCode);
         final Ruta route = ensureRoute(originCity, destinationCity);
 
-        final OffsetDateTime departure = BASE_SERVICE_DATE.atTime(departureHour, 0).atOffset(CENTRAL_AMERICA_OFFSET);
-        final OffsetDateTime arrival = departure.plusHours(DEFAULT_TRIP_DURATION_HOURS);
+        for (int dayOffset = 0; dayOffset < SERVICE_WINDOW_DAYS; dayOffset++) {
+            final LocalDate serviceDate = BASE_SERVICE_DATE.plusDays(dayOffset);
+            final OffsetDateTime departure = serviceDate.atTime(departureHour, 0).atOffset(CENTRAL_AMERICA_OFFSET);
+            final OffsetDateTime arrival = departure.plusHours(DEFAULT_TRIP_DURATION_HOURS);
 
-        if (findService(route.getId(), departure).isPresent()) {
-            return;
+            if (findService(route.getId(), departure).isEmpty()) {
+                final Servicio service = new Servicio(
+                        route,
+                        bus,
+                        departure,
+                        arrival,
+                        BigDecimal.valueOf(price),
+                        EstadoServicio.PROGRAMADO,
+                        BASE_BUS_CAPACITY
+                );
+                entityManager.persist(service);
+            }
         }
-
-        final Servicio service = new Servicio(
-                route,
-                bus,
-                departure,
-                arrival,
-                BigDecimal.valueOf(price),
-                EstadoServicio.PROGRAMADO,
-                BASE_BUS_CAPACITY
-        );
-        entityManager.persist(service);
     }
 
     private Bus ensureBaseBus() {

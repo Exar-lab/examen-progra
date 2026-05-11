@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Crear Cuenta — CentroBus</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <style>
+    .auth-layout {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .auth-side {
+      background: var(--bg-card);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .auth-side::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 70% 50% at 30% 60%, rgba(230,57,70,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 80% 20%, rgba(29,140,248,0.08) 0%, transparent 55%);
+      pointer-events: none;
+    }
+
+    .auth-side-content { position: relative; z-index: 1; }
+
+    .auth-side-title {
+      font-family: var(--font-display);
+      font-size: 3rem;
+      letter-spacing: 2px;
+      line-height: 1;
+      margin-bottom: 1rem;
+    }
+
+    .auth-side-desc {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      line-height: 1.7;
+      margin-bottom: 2rem;
+    }
+
+    .auth-perks {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .auth-perks li {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .perk-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .auth-form-side {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 3rem 4rem;
+      overflow-y: auto;
+    }
+
+    .auth-form-header {
+      margin-bottom: 2rem;
+    }
+
+    .auth-form-title {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      letter-spacing: 1px;
+      margin-bottom: 0.25rem;
+    }
+
+    .auth-form-sub {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .section-divider {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin: 1.25rem 0;
+    }
+
+    .section-divider::before,
+    .section-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    @media (max-width: 900px) {
+      .auth-layout { grid-template-columns: 1fr; }
+      .auth-side { display: none; }
+      .auth-form-side { padding: 2rem 1.5rem; }
+    }
+  </style>
+</head>
+<body style="background: var(--bg-base);">
+
+<nav class="navbar">
+  <a href="index.html" class="navbar-brand">
+    <span class="brand-icon">🚌</span>
+    <span class="brand-text">CENTROBUS</span>
+  </a>
+  <ul class="navbar-links">
+    <li><a href="index.html">Principal</a></li>
+    <li><a href="horarios.html">Horarios y Precios</a></li>
+    <li><a href="contacto.html">Contacto</a></li>
+  </ul>
+  <div class="navbar-actions">
+    <a href="login.html" class="btn btn-outline btn-sm">Ya tengo cuenta</a>
+  </div>
+</nav>
+
+<div style="padding-top: var(--nav-height);">
+  <div class="auth-layout">
+
+    <!-- Lado decorativo -->
+    <div class="auth-side">
+      <div class="auth-side-content">
+        <div style="font-size: 4rem; margin-bottom: 1rem;">🚌</div>
+        <div class="auth-side-title">ÚNETE A<br><span class="text-red">CENTROBUS</span></div>
+        <p class="auth-side-desc">
+          Crea tu cuenta gratis y empieza a viajar por toda Centroamérica con un solo clic.
+        </p>
+        <ul class="auth-perks">
+          <li>
+            <div class="perk-icon">🎫</div>
+            Compra hasta 5 pasajes por cuenta
+          </li>
+          <li>
+            <div class="perk-icon">📄</div>
+            Comprobante electrónico PDF al instante
+          </li>
+          <li>
+            <div class="perk-icon">🌎</div>
+            Acceso a 13+ rutas internacionales
+          </li>
+          <li>
+            <div class="perk-icon">⚡</div>
+            Compra rápida con tarjeta guardada
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Formulario -->
+    <div class="auth-form-side">
+      <div class="auth-form-header">
+        <div class="auth-form-title">Crear Cuenta</div>
+        <p class="auth-form-sub">¿Ya tienes cuenta? <a href="login.html">Inicia sesión aquí</a></p>
+      </div>
+
+      <div id="alertContainer"></div>
+
+      <form id="registroForm" onsubmit="handleRegistro(event)">
+
+        <div class="section-divider">Datos personales</div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Nombre *</label>
+            <input type="text" class="form-control" id="nombre" placeholder="Juan" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Apellidos *</label>
+            <input type="text" class="form-control" id="apellidos" placeholder="Pérez González" required />
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Pasaporte *</label>
+            <input type="text" class="form-control" id="pasaporte" placeholder="A1234567" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nacionalidad *</label>
+            <select class="form-control" id="nacionalidad" required>
+              <option value="">Seleccionar...</option>
+              <option>Costarricense</option>
+              <option>Nicaragüense</option>
+              <option>Salvadoreño/a</option>
+              <option>Guatemalteco/a</option>
+              <option>Hondureño/a</option>
+              <option>Panameño/a</option>
+              <option>Otro</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Correo electrónico *</label>
+            <input type="email" class="form-control" id="correo" placeholder="juan@email.com" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Teléfono *</label>
+            <input type="tel" class="form-control" id="telefono" placeholder="+506 8888-8888" required />
+          </div>
+        </div>
+
+        <div class="section-divider">Datos de tarjeta</div>
+
+        <div class="form-group">
+          <label class="form-label">Número de tarjeta *</label>
+          <input type="text" class="form-control" id="tarjeta" placeholder="1234 5678 9012 3456"
+                 maxlength="19" oninput="formatCard(this)" required />
+        </div>
+
+        <div class="form-grid-3">
+          <div class="form-group">
+            <label class="form-label">Titular *</label>
+            <input type="text" class="form-control" id="titular" placeholder="JUAN PEREZ" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Vencimiento *</label>
+            <input type="text" class="form-control" id="vencimiento" placeholder="MM/AA"
+                   maxlength="5" oninput="formatExpiry(this)" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">CVV *</label>
+            <input type="password" class="form-control" id="cvv" placeholder="•••" maxlength="4" required />
+          </div>
+        </div>
+
+        <div class="section-divider">Contraseña</div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Contraseña *</label>
+            <input type="password" class="form-control" id="password" placeholder="Mínimo 8 caracteres" required minlength="8" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confirmar contraseña *</label>
+            <input type="password" class="form-control" id="passwordConfirm" placeholder="Repetir contraseña" required />
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg w-full mt-3" id="submitBtn">
+          Crear Cuenta Gratis
+        </button>
+
+        <p class="text-muted text-center mt-2" style="font-size:0.8rem;">
+          Al registrarte aceptas nuestros términos de uso y política de privacidad.
+        </p>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="js/mock-data.js"></script>
+<script src="js/api-client.js"></script>
+<script src="js/session.js"></script>
+<script>
+  // Redirigir si ya está logueado
+  if (Session.isLoggedIn()) window.location.href = 'compra.html';
+
+  function formatCard(input) {
+    let val = input.value.replace(/\D/g, '').substring(0, 16);
+    input.value = val.replace(/(.{4})/g, '$1 ').trim();
+  }
+
+  function formatExpiry(input) {
+    let val = input.value.replace(/\D/g, '').substring(0, 4);
+    if (val.length >= 2) val = val.substring(0, 2) + '/' + val.substring(2);
+    input.value = val;
+  }
+
+  function showAlert(msg, type = 'error') {
+    document.getElementById('alertContainer').innerHTML = `
+      <div class="alert alert-${type}">
+        ${type === 'error' ? '⚠️' : '✅'} ${msg}
+      </div>
+    `;
+  }
+
+  async function handleRegistro(e) {
+    e.preventDefault();
+
+    const password = document.getElementById('password').value;
+    const passwordConfirm = document.getElementById('passwordConfirm').value;
+
+    if (password !== passwordConfirm) {
+      showAlert('Las contraseñas no coinciden.');
+      return;
+    }
+
+    const btn = document.getElementById('submitBtn');
+    btn.innerHTML = '<span class="spinner"></span> Creando cuenta...';
+    btn.disabled = true;
+
+    try {
+      await ApiClient.ensureCsrf();
+      const payload = {
+        nombres: document.getElementById('nombre').value,
+        apellidos: document.getElementById('apellidos').value,
+        documentoIdentidad: document.getElementById('pasaporte').value,
+        nacionalidad: document.getElementById('nacionalidad').value,
+        email: document.getElementById('correo').value,
+        telefono: document.getElementById('telefono').value,
+        username: document.getElementById('correo').value,
+        password: document.getElementById('password').value,
+      };
+
+      const response = await ApiClient.post('/api/customers', payload);
+
+      const cardPayload = {
+        titular: document.getElementById('titular').value,
+        numeroTarjeta: document.getElementById('tarjeta').value.replace(/\s/g, ''),
+        fechaExpiracion: parseExpiry(document.getElementById('vencimiento').value),
+        cvv: document.getElementById('cvv').value,
+      };
+      await ApiClient.post(`/api/customers/${response.id}/cards`, cardPayload);
+
+      Session.save({
+        id: response.id,
+        nombre: payload.nombres,
+        correo: payload.email,
+      });
+      window.location.href = 'compra.html';
+    } catch (error) {
+      showAlert(error.message || 'No se pudo registrar.');
+      btn.disabled = false;
+      btn.innerHTML = 'Crear Cuenta Gratis';
+    }
+  }
+
+  function parseExpiry(value) {
+    const [mm, yy] = value.split('/');
+    if (!mm || !yy) return '';
+    return `${mm}/20${yy}`;
+  }
+</script>
+</body>
+</html>

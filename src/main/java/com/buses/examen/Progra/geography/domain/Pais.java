@@ -33,4 +33,18 @@ public class Pais {
      * @return id generado por la base de datos
      */
     public Long getId() { return id; }
+
+    /**
+     * Devuelve el código ISO del país.
+     *
+     * @return código ISO
+     */
+    public String getCodigoIso() { return codigoIso; }
+
+    /**
+     * Devuelve el nombre del país.
+     *
+     * @return nombre
+     */
+    public String getNombre() { return nombre; }
 }

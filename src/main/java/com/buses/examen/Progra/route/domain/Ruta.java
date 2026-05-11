@@ -42,4 +42,32 @@ public class Ruta {
      * @return id generado por la base de datos
      */
     public Long getId() { return id; }
+
+    /**
+     * Devuelve la ciudad de origen.
+     *
+     * @return ciudad origen
+     */
+    public Ciudad getCiudadOrigen() { return ciudadOrigen; }
+
+    /**
+     * Devuelve la ciudad de destino.
+     *
+     * @return ciudad destino
+     */
+    public Ciudad getCiudadDestino() { return ciudadDestino; }
+
+    /**
+     * Devuelve la duración estimada en minutos.
+     *
+     * @return duración en minutos
+     */
+    public int getDuracionMinutos() { return duracionMinutos; }
+
+    /**
+     * Devuelve la distancia aproximada en kilómetros.
+     *
+     * @return distancia en km
+     */
+    public double getDistanciaKm() { return distanciaKm; }
 }

@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Comprar Pasaje — CentroBus</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <style>
+    .compra-layout {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 2rem;
+      align-items: start;
+    }
+
+    .step-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin-bottom: 2.5rem;
+    }
+
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex: 1;
+    }
+
+    .step-num {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      flex-shrink: 0;
+      transition: all 0.3s;
+    }
+
+    .step.active .step-num {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: #fff;
+    }
+
+    .step.done .step-num {
+      background: #22c55e;
+      border-color: #22c55e;
+      color: #fff;
+    }
+
+    .step-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+    }
+
+    .step.active .step-label { color: var(--text-primary); }
+    .step.done  .step-label  { color: #22c55e; }
+
+    .step-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+      margin: 0 0.5rem;
+    }
+
+    /* Servicio cards */
+    .servicio-card {
+      background: var(--bg-card);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 0.75rem;
+    }
+
+    .servicio-card:hover {
+      border-color: var(--blue);
+    }
+
+    .servicio-card.selected {
+      border-color: var(--blue);
+      background: rgba(29,140,248,0.05);
+      box-shadow: var(--shadow-blue);
+    }
+
+    .servicio-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+    }
+
+    .servicio-route {
+      font-weight: 700;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .servicio-meta {
+      display: flex;
+      gap: 1.5rem;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .servicio-meta span { display: flex; align-items: center; gap: 0.3rem; }
+
+    /* Sidebar resumen */
+    .resumen-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      position: sticky;
+      top: calc(var(--nav-height) + 1rem);
+    }
+
+    .resumen-title {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      letter-spacing: 1px;
+      margin-bottom: 1.25rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .resumen-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.75rem;
+      font-size: 0.9rem;
+    }
+
+    .resumen-item-label { color: var(--text-secondary); }
+
+    .resumen-total {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      margin-top: 0.5rem;
+    }
+
+    .resumen-total-label {
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 0.5px;
+    }
+
+    /* Ticket generado */
+    .ticket-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 2rem;
+      margin-bottom: 1rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ticket-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--red), var(--blue));
+    }
+
+    .ticket-code {
+      font-family: var(--font-mono);
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--blue);
+      letter-spacing: 3px;
+      background: var(--bg-elevated);
+      border: 1px dashed var(--blue);
+      border-radius: var(--radius-sm);
+      padding: 0.75rem 1.5rem;
+      text-align: center;
+      margin: 1rem 0;
+    }
+
+    .ticket-info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .ticket-info-item label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      font-weight: 700;
+      display: block;
+      margin-bottom: 0.2rem;
+    }
+
+    .ticket-info-item span {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    /* Step panels */
+    .step-panel { display: none; }
+    .step-panel.active { display: block; animation: fadeUp 0.3s ease; }
+
+    .date-selector {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+
+    .date-pill {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 0.4rem 1rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: var(--text-secondary);
+    }
+
+    .date-pill:hover,
+    .date-pill.active {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: #fff;
+    }
+
+    @media (max-width: 900px) {
+      .compra-layout { grid-template-columns: 1fr; }
+      .resumen-box { position: static; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="index.html" class="navbar-brand">
+    <span class="brand-icon">🚌</span>
+    <span class="brand-text">CENTROBUS</span>
+  </a>
+  <ul class="navbar-links">
+    <li><a href="index.html">Principal</a></li>
+    <li><a href="horarios.html">Horarios y Precios</a></li>
+    <li><a href="contacto.html">Contacto</a></li>
+  </ul>
+  <div class="navbar-actions" id="navActions"></div>
+</nav>
+
+<div class="page-wrapper">
+  <section class="section">
+    <div class="container">
+
+      <h1 class="section-title mb-2">COMPRAR <span class="text-red">PASAJE</span></h1>
+      <p class="section-subtitle">Selecciona tu ruta y fecha de viaje</p>
+
+      <!-- Indicador de pasos -->
+      <div class="step-indicator">
+        <div class="step active" id="step-ind-1">
+          <div class="step-num">1</div>
+          <span class="step-label">Ruta</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step" id="step-ind-2">
+          <div class="step-num">2</div>
+          <span class="step-label">Servicio</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step" id="step-ind-3">
+          <div class="step-num">3</div>
+          <span class="step-label">Confirmar</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step" id="step-ind-4">
+          <div class="step-num">4</div>
+          <span class="step-label">Tiquete</span>
+        </div>
+      </div>
+
+      <div class="compra-layout">
+
+        <!-- Panel principal -->
+        <div>
+
+          <!-- PASO 1: Seleccionar ruta -->
+          <div class="step-panel active" id="panel-1">
+            <div class="card mb-3">
+              <h3 style="font-family:var(--font-display); font-size:1.3rem; letter-spacing:1px; margin-bottom:1.25rem;">
+                ¿A DÓNDE VIAJAS?
+              </h3>
+
+              <div class="form-grid">
+                <div class="form-group">
+                  <label class="form-label">País de origen</label>
+                  <select class="form-control" id="selectOrigen">
+                    <option value="">Seleccionar país...</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">País de destino</label>
+                  <select class="form-control" id="selectDestino">
+                    <option value="">Seleccionar país...</option>
+                  </select>
+                </div>
+              </div>
+
+              <button class="btn btn-primary btn-lg" onclick="buscarServicios()">
+                Buscar Servicios →
+              </button>
+            </div>
+
+            <!-- Límite aviso -->
+            <div class="alert alert-info" id="limitAlert" style="display:none;"></div>
+          </div>
+
+          <!-- PASO 2: Seleccionar servicio -->
+          <div class="step-panel" id="panel-2">
+            <div class="flex-between mb-3">
+              <h3 style="font-family:var(--font-display); font-size:1.3rem; letter-spacing:1px;">
+                ELIGE TU SERVICIO
+              </h3>
+              <button class="btn btn-outline btn-sm" onclick="goStep(1)">← Cambiar ruta</button>
+            </div>
+
+            <div class="date-selector" id="datePills"></div>
+            <div id="serviciosList"></div>
+
+            <button class="btn btn-primary btn-lg" onclick="goStep(3)" id="btnConfirmar" disabled>
+              Continuar →
+            </button>
+          </div>
+
+          <!-- PASO 3: Confirmar -->
+          <div class="step-panel" id="panel-3">
+            <div class="flex-between mb-3">
+              <h3 style="font-family:var(--font-display); font-size:1.3rem; letter-spacing:1px;">
+                CONFIRMAR COMPRA
+              </h3>
+              <button class="btn btn-outline btn-sm" onclick="goStep(2)">← Cambiar servicio</button>
+            </div>
+
+            <div class="card mb-3" id="resumenConfirm"></div>
+
+            <div class="card mb-3">
+              <h4 style="font-weight:700; margin-bottom:1rem; font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted);">
+                Datos del pasajero
+              </h4>
+              <div id="pasajeroInfo"></div>
+            </div>
+
+            <div id="alertContainer"></div>
+
+            <button class="btn btn-primary btn-lg w-full" onclick="realizarCompra()" id="btnComprar">
+              🔒 Confirmar y Pagar
+            </button>
+          </div>
+
+          <!-- PASO 4: Tiquete generado -->
+          <div class="step-panel" id="panel-4">
+            <div class="alert alert-success mb-3">
+              ✅ ¡Compra realizada con éxito! Tu tiquete ha sido generado.
+            </div>
+
+            <div class="ticket-card" id="ticketGenerado"></div>
+
+            <div class="flex gap-2 mt-3">
+              <button class="btn btn-secondary btn-lg" onclick="descargarPDF()">
+                📄 Descargar PDF
+              </button>
+              <a href="compra.html" class="btn btn-outline btn-lg">
+                Comprar otro pasaje
+              </a>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Sidebar resumen -->
+        <div class="resumen-box">
+          <div class="resumen-title">🎫 RESUMEN</div>
+
+          <div id="resumenContent">
+            <p class="text-muted" style="font-size:0.88rem;">
+              Selecciona una ruta y servicio para ver el resumen.
+            </p>
+          </div>
+
+          <div class="divider"></div>
+
+          <div style="font-size:0.8rem; color:var(--text-muted);">
+            <div class="flex-between mb-1">
+              <span>Límite de pasajes</span>
+              <span id="limiteDisplay">— / 5</span>
+            </div>
+            <div class="flex-between">
+              <span>Ventana de compra</span>
+              <span>7 días</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+</div>
+
+<script src="js/mock-data.js"></script>
+<script src="js/api-client.js"></script>
+<script src="js/session.js"></script>
+<script>
+  // ── Protección de sesión ────────────────────────────────
+  if (!Session.isLoggedIn()) {
+    window.location.href = 'login.html';
+  }
+
+  let rutasCatalogo = [];
+  let serviciosCatalogo = [];
+  let selectedRuta = null;
+  let selectedServicio = null;
+  let selectedFecha = null;
+  let lastReceiptId = null;
+
+  // Navbar
+  const navEl = document.getElementById('navActions');
+  const currentUser = Session.current();
+  navEl.innerHTML = `
+    <span class="nav-user">👤 <span>${currentUser.nombre}</span></span>
+    <button class="btn btn-ghost btn-sm" onclick="Session.logout()">Salir</button>
+  `;
+
+  // Límite display (asumimos límite local por compra)
+  document.getElementById('limiteDisplay').textContent = `0 / 5`;
+
+  // Poblar selects
+  function poblarPaises(rutas) {
+    const orig = document.getElementById('selectOrigen');
+    const dest = document.getElementById('selectDestino');
+    const seenOrigin = new Set();
+    const seenDest = new Set();
+    rutas.forEach((ruta) => {
+      if (!seenOrigin.has(ruta.originCode)) {
+        orig.innerHTML += `<option value="${ruta.originCode}">${ruta.originFlag} ${ruta.originName}</option>`;
+        seenOrigin.add(ruta.originCode);
+      }
+      if (!seenDest.has(ruta.destinationCode)) {
+        dest.innerHTML += `<option value="${ruta.destinationCode}">${ruta.destinationFlag} ${ruta.destinationName}</option>`;
+        seenDest.add(ruta.destinationCode);
+      }
+    });
+  }
+
+  // Pasos
+  function goStep(n) {
+    document.querySelectorAll('.step-panel').forEach((p, i) => {
+      p.classList.toggle('active', i + 1 === n);
+    });
+    document.querySelectorAll('.step').forEach((s, i) => {
+      s.classList.remove('active', 'done');
+      if (i + 1 === n) s.classList.add('active');
+      if (i + 1 < n)  s.classList.add('done');
+    });
+    // Actualizar num done
+    document.querySelectorAll('.step.done .step-num').forEach(el => { el.textContent = '✓'; });
+  }
+
+  // Paso 1 → 2
+  async function buscarServicios() {
+    const origen  = document.getElementById('selectOrigen').value;
+    const destino = document.getElementById('selectDestino').value;
+
+    if (!origen || !destino) {
+      alert('Por favor selecciona origen y destino.');
+      return;
+    }
+    if (origen === destino) {
+      alert('El origen y destino no pueden ser el mismo.');
+      return;
+    }
+
+    selectedRuta = rutasCatalogo.find(r => r.originCode === origen && r.destinationCode === destino);
+
+    if (!selectedRuta) {
+      alert('No existe una ruta directa entre esos destinos. Revisa los horarios disponibles.');
+      return;
+    }
+
+    await cargarServicios(selectedRuta.routeId);
+    goStep(2);
+  }
+
+  async function cargarServicios(rutaId) {
+    const now = new Date();
+    const start = new Date(now);
+    const end = new Date(now);
+    end.setDate(now.getDate() + 7);
+
+    try {
+      serviciosCatalogo = await ApiClient.get(`/api/services/catalog?rutaId=${rutaId}&start=${start.toISOString()}&end=${end.toISOString()}`);
+    } catch (error) {
+      alert(error.message || 'No se pudieron cargar los servicios.');
+      serviciosCatalogo = [];
+    }
+
+    const fechas = [...new Set(serviciosCatalogo.map(s => new Date(s.departure).toDateString()))];
+    selectedFecha = fechas[0];
+
+    const pillsEl = document.getElementById('datePills');
+    pillsEl.innerHTML = fechas.map((f, i) => `
+      <div class="date-pill ${i === 0 ? 'active' : ''}" onclick="filtrarPorFecha('${f}', this)">
+        ${formatFecha(new Date(f))}
+      </div>
+    `).join('');
+
+    renderServiciosList(serviciosCatalogo.filter(s => new Date(s.departure).toDateString() === selectedFecha));
+  }
+
+  function filtrarPorFecha(fecha, el) {
+    selectedFecha = fecha;
+    document.querySelectorAll('.date-pill').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+
+    const servicios = serviciosCatalogo.filter(
+      s => new Date(s.departure).toDateString() === fecha
+    );
+    renderServiciosList(servicios);
+  }
+
+  function renderServiciosList(servicios) {
+    const el = document.getElementById('serviciosList');
+    if (servicios.length === 0) {
+      el.innerHTML = '<p class="text-muted">No hay servicios disponibles para esta fecha.</p>';
+      return;
+    }
+
+    el.innerHTML = servicios.map(s => {
+      const o = s.route;
+      const d = s.route;
+      const seatsClass = s.availableSeats > 15 ? 'seats-ok' : s.availableSeats > 5 ? 'seats-low' : 'seats-none';
+      return `
+        <div class="servicio-card" onclick="selectServicio(${s.serviceId}, this)">
+          <div class="servicio-header">
+            <div class="servicio-route">
+              ${o.originFlag} <span style="color:var(--text-muted)">→</span> ${o.destinationFlag}
+              <span style="font-size:0.9rem">${o.originName} → ${o.destinationName}</span>
+            </div>
+            <div class="price">$${s.price}</div>
+          </div>
+          <div class="servicio-meta">
+            <span>🕐 ${formatHora(s.departure)}</span>
+            <span>⏱ ~${o.durationHours}h</span>
+            <span class="${seatsClass}">💺 ${s.availableSeats} asientos</span>
+            <span>📅 ${formatFecha(s.departure)}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function selectServicio(id, el) {
+    selectedServicio = serviciosCatalogo.find(s => s.serviceId === id);
+    document.querySelectorAll('.servicio-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById('btnConfirmar').disabled = false;
+    actualizarResumen();
+  }
+
+  function actualizarResumen() {
+    if (!selectedServicio) return;
+    const o = selectedServicio.route;
+    const d = selectedServicio.route;
+
+    document.getElementById('resumenContent').innerHTML = `
+      <div class="resumen-item">
+        <span class="resumen-item-label">Ruta</span>
+        <span>${o.originFlag} → ${o.destinationFlag}</span>
+      </div>
+      <div class="resumen-item">
+        <span class="resumen-item-label">Origen</span>
+        <span>${o.originName}</span>
+      </div>
+      <div class="resumen-item">
+        <span class="resumen-item-label">Destino</span>
+        <span>${o.destinationName}</span>
+      </div>
+      <div class="resumen-item">
+        <span class="resumen-item-label">Salida</span>
+        <span>${formatHora(selectedServicio.departure)}</span>
+      </div>
+      <div class="resumen-item">
+        <span class="resumen-item-label">Fecha</span>
+        <span>${formatFecha(selectedServicio.departure)}</span>
+      </div>
+      <div class="resumen-total">
+        <span class="resumen-total-label">Total</span>
+        <span class="price-lg">$${selectedServicio.price}</span>
+      </div>
+    `;
+  }
+
+  // Paso 3: Confirmar
+  function goStep3() {
+    const o = selectedServicio.route;
+    const d = selectedServicio.route;
+
+    document.getElementById('resumenConfirm').innerHTML = `
+      <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1rem;">
+        <span style="font-size:2rem;">${o.originFlag}</span>
+        <div>
+          <div style="font-family:var(--font-display); font-size:1.1rem; letter-spacing:1px;">
+            ${o.originName} → ${o.destinationName}
+          </div>
+          <div style="color:var(--text-secondary); font-size:0.85rem;">
+            ${formatFecha(selectedServicio.departure)} · ${formatHora(selectedServicio.departure)}
+          </div>
+        </div>
+        <div class="price-lg" style="margin-left:auto;">$${selectedServicio.price}</div>
+      </div>
+    `;
+
+    document.getElementById('pasajeroInfo').innerHTML = `
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; font-size:0.9rem;">
+        <div><span style="color:var(--text-muted); font-size:0.75rem;">Pasajero</span><br>
+          <strong>${currentUser.nombre}</strong></div>
+        <div><span style="color:var(--text-muted); font-size:0.75rem;">Correo</span><br>
+          <strong>${currentUser.correo || '—'}</strong></div>
+      </div>
+    `;
+  }
+
+  // Paso 4: Realizar compra
+  async function realizarCompra() {
+    const btn = document.getElementById('btnComprar');
+    btn.innerHTML = '<span class="spinner"></span> Procesando pago...';
+    btn.disabled = true;
+    try {
+      const seatId = await resolveSeatId();
+      const purchasePayload = {
+        servicioId: selectedServicio.serviceId,
+        asientoIds: [seatId],
+        canalCompra: 'WEB',
+        codigoOperacionExterna: `WEB-${Date.now()}`,
+      };
+      const purchaseResponse = await ApiClient.post('/api/purchases', purchasePayload);
+      lastReceiptId = purchaseResponse.comprobanteId;
+
+      const receipt = await ApiClient.get(`/api/purchases/receipts/${purchaseResponse.comprobanteId}`);
+      renderReceipt(receipt);
+      document.getElementById('limiteDisplay').textContent = `1 / 5`;
+      goStep(4);
+    } catch (error) {
+      mostrarAlerta(error.message || 'No se pudo completar la compra.', 'error');
+      btn.disabled = false;
+      btn.innerHTML = '🔒 Confirmar y Pagar';
+    }
+  }
+
+  async function resolveSeatId() {
+    const response = await ApiClient.get(`/api/fleet/buses/1/seats`);
+    if (!response || response.length === 0) {
+      throw new Error('No hay asientos disponibles.');
+    }
+    return response[0].id;
+  }
+
+  function renderReceipt(receipt) {
+    const ticket = receipt.tickets[0];
+    document.getElementById('ticketGenerado').innerHTML = `
+      <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1rem;">
+        <span style="font-size:2rem;">🎫</span>
+        <div>
+          <div style="font-family:var(--font-display); font-size:1.1rem; letter-spacing:1px;">TIQUETE DE VIAJE</div>
+          <div style="color:var(--text-muted); font-size:0.8rem;">Emitido el ${formatFecha(receipt.fechaEmision)}</div>
+        </div>
+        <div class="badge badge-green" style="margin-left:auto;">✓ VÁLIDO</div>
+      </div>
+
+      <div class="ticket-code">${ticket.codigo}</div>
+
+      <div class="ticket-info-grid">
+        <div class="ticket-info-item">
+          <label>Pasajero</label>
+          <span>${receipt.clienteNombre}</span>
+        </div>
+        <div class="ticket-info-item">
+          <label>Precio</label>
+          <span class="text-gold">$${ticket.precio}</span>
+        </div>
+        <div class="ticket-info-item">
+          <label>Origen</label>
+          <span>${selectedServicio.route.originFlag} ${selectedServicio.route.originName}</span>
+        </div>
+        <div class="ticket-info-item">
+          <label>Destino</label>
+          <span>${selectedServicio.route.destinationFlag} ${selectedServicio.route.destinationName}</span>
+        </div>
+        <div class="ticket-info-item">
+          <label>Fecha</label>
+          <span>${formatFecha(ticket.salidaProgramada)}</span>
+        </div>
+        <div class="ticket-info-item">
+          <label>Hora de salida</label>
+          <span>${formatHora(ticket.salidaProgramada)}</span>
+        </div>
+      </div>
+
+      <p class="text-muted mt-3" style="font-size:0.8rem; text-align:center;">
+        Presenta este código al abordar el bus
+      </p>
+    `;
+  }
+
+  function descargarPDF() {
+    if (!lastReceiptId) {
+      alert('No hay comprobante para descargar.');
+      return;
+    }
+    window.open(`/api/purchases/receipts/${lastReceiptId}/pdf`, '_blank');
+  }
+
+  // Override goStep para paso 3
+  const _goStep = goStep;
+  window.goStep = function(n) {
+    _goStep(n);
+    if (n === 3) goStep3();
+  };
+
+  async function inicializar() {
+    try {
+      rutasCatalogo = await ApiClient.get('/api/routes/catalog');
+      poblarPaises(rutasCatalogo);
+    } catch (error) {
+      alert('No se pudo cargar el catálogo inicial.');
+    }
+  }
+
+  function mostrarAlerta(mensaje, tipo) {
+    const container = document.getElementById('alertContainer');
+    if (container) {
+      container.innerHTML = `<div class="alert alert-${tipo}">${tipo === 'error' ? '⚠️' : '✅'} ${mensaje}</div>`;
+    }
+    if (tipo === 'error') {
+      const limitAlert = document.getElementById('limitAlert');
+      if (limitAlert) {
+        limitAlert.style.display = 'flex';
+        limitAlert.innerHTML = mensaje;
+      }
+    }
+  }
+
+  inicializar();
+</script>
+</body>
+</html>

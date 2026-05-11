@@ -27,4 +27,14 @@ public interface ServiceQueryUseCase {
      * @return servicio encontrado, si existe
      */
     Optional<Servicio> findServiceById(Long servicioId);
+
+    /**
+     * Devuelve los servicios disponibles en formato de catálogo para el frontend.
+     *
+     * @param rutaId identificador de la ruta (puede ser null para todos)
+     * @param start fecha inicial de la ventana de búsqueda
+     * @param end fecha final de la ventana de búsqueda
+     * @return catálogo de servicios para el frontend
+     */
+    List<com.buses.examen.Progra.service.adapter.in.web.dto.response.ServiceCatalogResponse> catalog(Long rutaId, OffsetDateTime start, OffsetDateTime end);
 }

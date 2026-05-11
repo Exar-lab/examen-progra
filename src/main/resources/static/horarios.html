@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Horarios y Precios — CentroBus</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <style>
+    .page-header {
+      padding: 4rem 0 3rem;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(29,140,248,0.05) 0%, transparent 100%);
+    }
+
+    .filters-bar {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr auto;
+      gap: 1rem;
+      align-items: end;
+    }
+
+    .ruta-row {
+      display: grid;
+      grid-template-columns: 180px 1fr 120px 100px 100px 140px;
+      gap: 1rem;
+      align-items: center;
+      padding: 1.1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+
+    .ruta-row:hover { background: var(--bg-elevated); }
+    .ruta-row:last-child { border-bottom: none; }
+
+    .ruta-row-header {
+      background: var(--bg-elevated);
+      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    }
+
+    .route-flags-cell {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 1.2rem;
+    }
+
+    .route-name-cell {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .route-name-sub {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 0.15rem;
+    }
+
+    .horario-badge {
+      font-family: var(--font-mono);
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--blue);
+      background: var(--blue-glow);
+      border: 1px solid var(--blue);
+      border-radius: 4px;
+      padding: 0.2rem 0.6rem;
+      display: inline-block;
+    }
+
+    .duration-cell {
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+    }
+
+    .seats-cell {
+      font-size: 0.85rem;
+    }
+
+    .seats-ok { color: #22c55e; }
+    .seats-low { color: var(--gold); }
+    .seats-none { color: var(--red); }
+
+    .country-filter {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .country-pill {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 0.35rem 1rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: var(--text-secondary);
+    }
+
+    .country-pill:hover,
+    .country-pill.active {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: #fff;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--text-muted);
+    }
+
+    .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; }
+
+    @media (max-width: 768px) {
+      .filters-bar { grid-template-columns: 1fr; }
+      .ruta-row { grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+      .ruta-row-header { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="index.html" class="navbar-brand">
+    <span class="brand-icon">🚌</span>
+    <span class="brand-text">CENTROBUS</span>
+  </a>
+  <ul class="navbar-links">
+    <li><a href="index.html">Principal</a></li>
+    <li><a href="horarios.html" class="active">Horarios y Precios</a></li>
+    <li><a href="contacto.html">Contacto</a></li>
+  </ul>
+  <div class="navbar-actions" id="navActions">
+    <a href="registro.html" class="btn btn-outline btn-sm">Registrarse</a>
+    <a href="login.html" class="btn btn-primary btn-sm">Iniciar Sesión</a>
+  </div>
+</nav>
+
+<div class="page-wrapper">
+  <div class="page-header">
+    <div class="container">
+      <div class="badge badge-blue mb-2">🗓️ Actualizado hoy</div>
+      <h1 class="section-title">HORARIOS Y <span class="text-red">PRECIOS</span></h1>
+      <p class="section-subtitle">Consulta todos los servicios disponibles para los próximos 7 días</p>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="container">
+
+      <!-- Filtros -->
+      <div class="filters-bar">
+        <div class="form-group" style="margin:0">
+          <label class="form-label">País de origen</label>
+          <select class="form-control" id="filterOrigen">
+            <option value="">Todos los países</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin:0">
+          <label class="form-label">País de destino</label>
+          <select class="form-control" id="filterDestino">
+            <option value="">Todos los países</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Precio máximo</label>
+          <select class="form-control" id="filterPrecio">
+            <option value="">Cualquier precio</option>
+            <option value="80">Hasta $80</option>
+            <option value="110">Hasta $110</option>
+            <option value="120">Hasta $120</option>
+            <option value="140">Hasta $140</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="aplicarFiltros()">Buscar</button>
+      </div>
+
+      <!-- Tabla de rutas -->
+      <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden;">
+
+        <!-- Header -->
+        <div class="ruta-row ruta-row-header">
+          <th style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; font-weight:700;">Ruta</th>
+          <th style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; font-weight:700;">Destino</th>
+          <th style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; font-weight:700;">Salida</th>
+          <th style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; font-weight:700;">Duración</th>
+          <th style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; font-weight:700;">Precio</th>
+          <th style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; font-weight:700;">Acción</th>
+        </div>
+
+        <div id="rutasList"></div>
+      </div>
+
+      <p class="text-muted mt-2" style="font-size:0.8rem;">
+        * Los precios están en dólares americanos (USD). Sujetos a disponibilidad.
+      </p>
+    </div>
+  </section>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="brand-text">🚌 CENTROBUS</div>
+        <p class="footer-desc">Sistema de venta de pasajes de bus para toda Centroamérica.</p>
+      </div>
+      <div>
+        <div class="footer-title">Navegación</div>
+        <ul class="footer-links">
+          <li><a href="index.html">Principal</a></li>
+          <li><a href="horarios.html">Horarios y Precios</a></li>
+          <li><a href="contacto.html">Contacto</a></li>
+          <li><a href="registro.html">Registrarse</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-title">Acceso</div>
+        <ul class="footer-links">
+          <li><a href="login.html">Iniciar Sesión</a></li>
+          <li><a href="compra.html">Comprar Pasaje</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 CentroBus. Todos los derechos reservados.</span>
+      <span>🇨🇷 Con sede en Costa Rica</span>
+    </div>
+  </div>
+</footer>
+
+<script src="js/mock-data.js"></script>
+<script src="js/api-client.js"></script>
+<script src="js/session.js"></script>
+<script>
+  let rutasCatalogo = [];
+
+  function renderNavActions() {
+    const el = document.getElementById('navActions');
+    if (Session.isLoggedIn()) {
+      const user = Session.current();
+      el.innerHTML = `
+        <span class="nav-user">👤 <span>${user.nombre}</span></span>
+        <a href="compra.html" class="btn btn-secondary btn-sm">Comprar</a>
+        <button class="btn btn-ghost btn-sm" onclick="Session.logout()">Salir</button>
+      `;
+    }
+  }
+
+  function poblarFiltros(rutas) {
+    const origenSel = document.getElementById('filterOrigen');
+    const destinoSel = document.getElementById('filterDestino');
+    const seen = new Set();
+    rutas.forEach((ruta) => {
+      if (!seen.has(ruta.originCode)) {
+        origenSel.innerHTML += `<option value="${ruta.originCode}">${ruta.originFlag} ${ruta.originName}</option>`;
+        seen.add(ruta.originCode);
+      }
+    });
+    const seenDest = new Set();
+    rutas.forEach((ruta) => {
+      if (!seenDest.has(ruta.destinationCode)) {
+        destinoSel.innerHTML += `<option value="${ruta.destinationCode}">${ruta.destinationFlag} ${ruta.destinationName}</option>`;
+        seenDest.add(ruta.destinationCode);
+      }
+    });
+  }
+
+  function aplicarFiltros() {
+    const origen  = document.getElementById('filterOrigen').value;
+    const destino = document.getElementById('filterDestino').value;
+    const precio  = document.getElementById('filterPrecio').value;
+
+    let rutas = [...rutasCatalogo];
+    if (origen)  rutas = rutas.filter(r => r.originCode === origen);
+    if (destino) rutas = rutas.filter(r => r.destinationCode === destino);
+    if (precio)  rutas = rutas.filter(r => Number(r.basePrice) <= Number(precio));
+
+    renderRutas(rutas);
+  }
+
+  function renderRutas(rutas) {
+    const el = document.getElementById('rutasList');
+
+    if (rutas.length === 0) {
+      el.innerHTML = `
+        <div class="empty-state">
+          <div class="icon">🔍</div>
+          <p>No se encontraron rutas con esos filtros.</p>
+        </div>
+      `;
+      return;
+    }
+
+    el.innerHTML = rutas.map(r => {
+      const loginLink = Session.isLoggedIn() ? 'compra.html' : 'login.html';
+      return `
+        <div class="ruta-row">
+          <div class="route-flags-cell">
+            <span>${r.originFlag}</span>
+            <span style="color:var(--text-muted); font-size:0.9rem;">→</span>
+            <span>${r.destinationFlag}</span>
+          </div>
+          <div>
+            <div class="route-name-cell">${r.originName} → ${r.destinationName}</div>
+            <div class="route-name-sub">${r.originCode} → ${r.destinationCode}</div>
+          </div>
+          <div><span class="horario-badge">—</span></div>
+          <div class="duration-cell">~${r.durationHours}h</div>
+          <div class="price">$${r.basePrice}</div>
+          <div>
+            <a href="${loginLink}" class="btn btn-primary btn-sm">Comprar →</a>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  async function cargarCatalogo() {
+    try {
+      rutasCatalogo = await ApiClient.get('/api/routes/catalog');
+      poblarFiltros(rutasCatalogo);
+      renderRutas(rutasCatalogo);
+    } catch (error) {
+      document.getElementById('rutasList').innerHTML = `
+        <div class="empty-state">
+          <div class="icon">⚠️</div>
+          <p>No se pudo cargar el catálogo.</p>
+        </div>
+      `;
+    }
+  }
+
+  renderNavActions();
+  cargarCatalogo();
+</script>
+</body>
+</html>
