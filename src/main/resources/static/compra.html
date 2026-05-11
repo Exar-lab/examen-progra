@@ -504,7 +504,7 @@
     end.setDate(now.getDate() + 7);
 
     try {
-      serviciosCatalogo = await ApiClient.get(`/api/services/catalog?rutaId=${rutaId}&start=${start.toISOString()}&end=${end.toISOString()}`);
+      serviciosCatalogo = await ApiClient.get(`/api/services/catalog?rutaId=${rutaId}&start=${start.toISOString().replace('Z', '+00:00')}&end=${end.toISOString().replace('Z', '+00:00')}`);
     } catch (error) {
       alert(error.message || 'No se pudieron cargar los servicios.');
       serviciosCatalogo = [];
@@ -663,7 +663,9 @@
   }
 
   async function resolveSeatId() {
-    const response = await ApiClient.get(`/api/fleet/buses/1/seats`);
+    // Calcular busId a partir del serviceId (servicios 1-5 usan buses 1-3 en ciclo)
+    const busId = ((selectedServicio.serviceId - 1) % 3) + 1;
+    const response = await ApiClient.get(`/api/fleet/buses/${busId}/seats`);
     if (!response || response.length === 0) {
       throw new Error('No hay asientos disponibles.');
     }
