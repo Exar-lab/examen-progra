@@ -124,9 +124,9 @@
 
       <form id="loginForm" onsubmit="handleLogin(event)">
         <div class="form-group">
-          <label class="form-label">Correo electrónico</label>
-          <input type="email" class="form-control" id="correo"
-                 placeholder="tu@correo.com" required autofocus />
+          <label class="form-label">Usuario</label>
+          <input type="text" class="form-control" id="correo"
+                 placeholder="Tu nombre de usuario" required autofocus />
         </div>
 
         <div class="form-group">
@@ -147,7 +147,7 @@
       </a>
 
       <p class="text-center text-muted mt-3" style="font-size:0.78rem;">
-        Demo: usa cualquier correo y contraseña de 8+ caracteres
+        Usuarios de prueba: victor, laura99, carlos_soto — Contraseña: Password123
       </p>
     </div>
   </div>
@@ -194,7 +194,7 @@
         password,
       });
 
-      const nombre = correo.split('@')[0];
+      const nombre = correo;
       Session.save({
         id: response.clienteId,
         nombre: nombre.charAt(0).toUpperCase() + nombre.slice(1),
