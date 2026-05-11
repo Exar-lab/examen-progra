@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.4.0](https://github.com/Exar-lab/examen-progra/compare/v1.3.0...v1.4.0) (2026-05-09)
+
+
+### Features
+
+* **sales:** expose receipt and ticket endpoints ([ead7adc](https://github.com/Exar-lab/examen-progra/commit/ead7adc2013e4933e7b516b547ca0f79ee1ce5c8))
+* **sales:** expose receipt JSON endpoint ([780e6ac](https://github.com/Exar-lab/examen-progra/commit/780e6ac0c4686cf052aa669a7f6800be94a2d85d))
+* **security:** expose authentication beans ([4f515c0](https://github.com/Exar-lab/examen-progra/commit/4f515c0cd57fa22d82ad655985b024fb00fbc904))
+
 ## [1.3.0](https://github.com/Exar-lab/examen-progra/compare/v1.2.0...v1.3.0) (2026-05-09)
 
 
