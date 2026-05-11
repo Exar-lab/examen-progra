@@ -37,6 +37,7 @@ public class WebSecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .formLogin(form -> form
+                        .loginPage("/login.html")
                         .loginProcessingUrl("/login")
                         .permitAll())
                 .logout(logout -> logout
@@ -51,6 +52,19 @@ public class WebSecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/auth/me").authenticated()
+                        // Páginas y assets públicos del frontend estático.
+                        .requestMatchers(
+                                "/",
+                                "/index.html",
+                                "/login.html",
+                                "/registro.html",
+                                "/horarios.html",
+                                "/contacto.html",
+                                "/css/**",
+                                "/js/**",
+                                "/images/**",
+                                "/favicon.ico")
+                        .permitAll()
                         // Registro y consulta pública de clientes
                         .requestMatchers(HttpMethod.GET, "/api/customers/register").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/customers/document/**").permitAll()

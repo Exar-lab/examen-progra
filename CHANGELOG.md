@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.5.1](https://github.com/Exar-lab/examen-progra/compare/v1.5.0...v1.5.1) (2026-05-11)
+
+
+### Bug Fixes
+
+* corregir nombre BD, fechas servicios, scripts contacto y formato fechas compra ([b11fc95](https://github.com/Exar-lab/examen-progra/commit/b11fc95c5470709579a2d2acf585b41d563378af))
+* **frontend:** validate backend session for purchases ([2c0a2c3](https://github.com/Exar-lab/examen-progra/commit/2c0a2c33f819699943b0f7ed7f05738ceb261386))
+* **routes:** show catalog prices and duration ([6563257](https://github.com/Exar-lab/examen-progra/commit/6563257a1cc1f733069f63a7ad9f308d96127c74))
+* **security:** use custom login page ([a9d3b54](https://github.com/Exar-lab/examen-progra/commit/a9d3b547b58910d27b323acf4d6719eb4279e0f7))
+
 ## [1.5.0](https://github.com/Exar-lab/examen-progra/compare/v1.4.0...v1.5.0) (2026-05-11)
 
 

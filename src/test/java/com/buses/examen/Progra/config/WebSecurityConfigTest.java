@@ -16,6 +16,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -98,5 +99,34 @@ class WebSecurityConfigTest {
                                 "Expected public REST login allowed (not 401/403) but got: " + status);
                     }
                 });
+    }
+
+    /**
+     * Verifica que las páginas públicas del frontend estático no quedan protegidas por seguridad.
+     *
+     * @throws Exception si falla la ejecución del request MVC
+     */
+    @Test
+    void shouldAllowPublicStaticFrontendPagesWithoutAuth() throws Exception {
+        mockMvc.perform(get("/login.html"))
+                .andExpect(result -> {
+                    final int status = result.getResponse().getStatus();
+                    if (status == 401 || status == 403) {
+                        throw new AssertionError(
+                                "Expected public static login page allowed (not 401/403) but got: " + status);
+                    }
+                });
+    }
+
+    /**
+     * Verifica que recursos protegidos redirigen al login personalizado, no al formulario default de Spring Security.
+     *
+     * @throws Exception si falla la ejecución del request MVC
+     */
+    @Test
+    void shouldRedirectProtectedPagesToCustomLoginPage() throws Exception {
+        mockMvc.perform(get("/compra.html"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/login.html"));
     }
 }
