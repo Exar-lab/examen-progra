@@ -283,9 +283,11 @@
 </div>
 
 <script src="js/mock-data.js"></script>
+<script src="js/api-client.js"></script>
+<script src="js/session.js"></script>
 <script>
   // Redirigir si ya está logueado
-  if (isLoggedIn()) window.location.href = 'compra.html';
+  if (Session.isLoggedIn()) window.location.href = 'compra.html';
 
   function formatCard(input) {
     let val = input.value.replace(/\D/g, '').substring(0, 16);
@@ -306,7 +308,7 @@
     `;
   }
 
-  function handleRegistro(e) {
+  async function handleRegistro(e) {
     e.preventDefault();
 
     const password = document.getElementById('password').value;
@@ -321,21 +323,46 @@
     btn.innerHTML = '<span class="spinner"></span> Creando cuenta...';
     btn.disabled = true;
 
-    // ── MOCK: Simular registro ──────────────────────────
-    // TODO: Reemplazar con fetch('/api/auth/registro', { method: 'POST', body: JSON.stringify({...}) })
-    setTimeout(() => {
-      const usuario = {
-        id: Date.now(),
-        nombre: document.getElementById('nombre').value,
+    try {
+      await ApiClient.ensureCsrf();
+      const payload = {
+        nombres: document.getElementById('nombre').value,
         apellidos: document.getElementById('apellidos').value,
-        correo: document.getElementById('correo').value,
-        pasaporte: document.getElementById('pasaporte').value,
+        documentoIdentidad: document.getElementById('pasaporte').value,
+        nacionalidad: document.getElementById('nacionalidad').value,
+        email: document.getElementById('correo').value,
         telefono: document.getElementById('telefono').value,
+        username: document.getElementById('correo').value,
+        password: document.getElementById('password').value,
       };
 
-      guardarSesion(usuario);
+      const response = await ApiClient.post('/api/customers', payload);
+
+      const cardPayload = {
+        titular: document.getElementById('titular').value,
+        numeroTarjeta: document.getElementById('tarjeta').value.replace(/\s/g, ''),
+        fechaExpiracion: parseExpiry(document.getElementById('vencimiento').value),
+        cvv: document.getElementById('cvv').value,
+      };
+      await ApiClient.post(`/api/customers/${response.id}/cards`, cardPayload);
+
+      Session.save({
+        id: response.id,
+        nombre: payload.nombres,
+        correo: payload.email,
+      });
       window.location.href = 'compra.html';
-    }, 1200);
+    } catch (error) {
+      showAlert(error.message || 'No se pudo registrar.');
+      btn.disabled = false;
+      btn.innerHTML = 'Crear Cuenta Gratis';
+    }
+  }
+
+  function parseExpiry(value) {
+    const [mm, yy] = value.split('/');
+    if (!mm || !yy) return '';
+    return `${mm}/20${yy}`;
   }
 </script>
 </body>

@@ -66,6 +66,13 @@ public class Servicio {
     public OffsetDateTime getSalidaProgramada() { return salidaProgramada; }
 
     /**
+     * Devuelve la ruta de este servicio.
+     *
+     * @return ruta
+     */
+    public Ruta getRuta() { return ruta; }
+
+    /**
      * Devuelve el bus asignado a este servicio.
      *
      * @return bus

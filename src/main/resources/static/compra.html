@@ -426,33 +426,47 @@
 </div>
 
 <script src="js/mock-data.js"></script>
+<script src="js/api-client.js"></script>
+<script src="js/session.js"></script>
 <script>
   // ── Protección de sesión ────────────────────────────────
-  if (!isLoggedIn()) {
+  if (!Session.isLoggedIn()) {
     window.location.href = 'login.html';
   }
 
-  let selectedRuta    = null;
+  let rutasCatalogo = [];
+  let serviciosCatalogo = [];
+  let selectedRuta = null;
   let selectedServicio = null;
-  let selectedFecha   = null;
+  let selectedFecha = null;
+  let lastReceiptId = null;
 
   // Navbar
   const navEl = document.getElementById('navActions');
+  const currentUser = Session.current();
   navEl.innerHTML = `
-    <span class="nav-user">👤 <span>${SESSION_USER.nombre}</span></span>
-    <button class="btn btn-ghost btn-sm" onclick="logout()">Salir</button>
+    <span class="nav-user">👤 <span>${currentUser.nombre}</span></span>
+    <button class="btn btn-ghost btn-sm" onclick="Session.logout()">Salir</button>
   `;
 
-  // Límite display
-  document.getElementById('limiteDisplay').textContent = `${ticketsComprados()} / 5`;
+  // Límite display (asumimos límite local por compra)
+  document.getElementById('limiteDisplay').textContent = `0 / 5`;
 
   // Poblar selects
-  function poblarPaises() {
+  function poblarPaises(rutas) {
     const orig = document.getElementById('selectOrigen');
     const dest = document.getElementById('selectDestino');
-    Object.entries(PAISES).forEach(([cod, p]) => {
-      orig.innerHTML += `<option value="${cod}">${p.bandera} ${p.nombre}</option>`;
-      dest.innerHTML += `<option value="${cod}">${p.bandera} ${p.nombre}</option>`;
+    const seenOrigin = new Set();
+    const seenDest = new Set();
+    rutas.forEach((ruta) => {
+      if (!seenOrigin.has(ruta.originCode)) {
+        orig.innerHTML += `<option value="${ruta.originCode}">${ruta.originFlag} ${ruta.originName}</option>`;
+        seenOrigin.add(ruta.originCode);
+      }
+      if (!seenDest.has(ruta.destinationCode)) {
+        dest.innerHTML += `<option value="${ruta.destinationCode}">${ruta.destinationFlag} ${ruta.destinationName}</option>`;
+        seenDest.add(ruta.destinationCode);
+      }
     });
   }
 
@@ -471,7 +485,7 @@
   }
 
   // Paso 1 → 2
-  function buscarServicios() {
+  async function buscarServicios() {
     const origen  = document.getElementById('selectOrigen').value;
     const destino = document.getElementById('selectDestino').value;
 
@@ -484,32 +498,33 @@
       return;
     }
 
-    // Verificar límite
-    if (ticketsComprados() >= 5) {
-      document.getElementById('limitAlert').style.display = 'flex';
-      document.getElementById('limitAlert').innerHTML = '⚠️ Has alcanzado el límite de 5 pasajes permitidos.';
-      return;
-    }
-
-    selectedRuta = RUTAS.find(r => r.origen === origen && r.destino === destino);
+    selectedRuta = rutasCatalogo.find(r => r.originCode === origen && r.destinationCode === destino);
 
     if (!selectedRuta) {
       alert('No existe una ruta directa entre esos destinos. Revisa los horarios disponibles.');
       return;
     }
 
-    renderServicios(origen, destino);
+    await cargarServicios(selectedRuta.routeId);
     goStep(2);
   }
 
-  function renderServicios(origen, destino) {
-    const servicios = SERVICIOS.filter(s => s.ruta.origen === origen && s.ruta.destino === destino);
+  async function cargarServicios(rutaId) {
+    const now = new Date();
+    const start = new Date(now);
+    const end = new Date(now);
+    end.setDate(now.getDate() + 7);
 
-    // Agrupar por fecha
-    const fechas = [...new Set(servicios.map(s => s.fechaSalida.toDateString()))];
+    try {
+      serviciosCatalogo = await ApiClient.get(`/api/services/catalog?rutaId=${rutaId}&start=${start.toISOString()}&end=${end.toISOString()}`);
+    } catch (error) {
+      alert(error.message || 'No se pudieron cargar los servicios.');
+      serviciosCatalogo = [];
+    }
+
+    const fechas = [...new Set(serviciosCatalogo.map(s => new Date(s.departure).toDateString()))];
     selectedFecha = fechas[0];
 
-    // Date pills
     const pillsEl = document.getElementById('datePills');
     pillsEl.innerHTML = fechas.map((f, i) => `
       <div class="date-pill ${i === 0 ? 'active' : ''}" onclick="filtrarPorFecha('${f}', this)">
@@ -517,7 +532,7 @@
       </div>
     `).join('');
 
-    renderServiciosList(servicios.filter(s => s.fechaSalida.toDateString() === selectedFecha));
+    renderServiciosList(serviciosCatalogo.filter(s => new Date(s.departure).toDateString() === selectedFecha));
   }
 
   function filtrarPorFecha(fecha, el) {
@@ -525,11 +540,8 @@
     document.querySelectorAll('.date-pill').forEach(p => p.classList.remove('active'));
     el.classList.add('active');
 
-    const origen  = document.getElementById('selectOrigen').value;
-    const destino = document.getElementById('selectDestino').value;
-    const servicios = SERVICIOS.filter(
-      s => s.ruta.origen === origen && s.ruta.destino === destino
-        && s.fechaSalida.toDateString() === fecha
+    const servicios = serviciosCatalogo.filter(
+      s => new Date(s.departure).toDateString() === fecha
     );
     renderServiciosList(servicios);
   }
@@ -542,23 +554,23 @@
     }
 
     el.innerHTML = servicios.map(s => {
-      const o = PAISES[s.ruta.origen];
-      const d = PAISES[s.ruta.destino];
-      const seatsClass = s.asientosDisponibles > 15 ? 'seats-ok' : s.asientosDisponibles > 5 ? 'seats-low' : 'seats-none';
+      const o = s.route;
+      const d = s.route;
+      const seatsClass = s.availableSeats > 15 ? 'seats-ok' : s.availableSeats > 5 ? 'seats-low' : 'seats-none';
       return `
-        <div class="servicio-card" onclick="selectServicio(${s.id}, this)">
+        <div class="servicio-card" onclick="selectServicio(${s.serviceId}, this)">
           <div class="servicio-header">
             <div class="servicio-route">
-              ${o.bandera} <span style="color:var(--text-muted)">→</span> ${d.bandera}
-              <span style="font-size:0.9rem">${o.nombre} → ${d.nombre}</span>
+              ${o.originFlag} <span style="color:var(--text-muted)">→</span> ${o.destinationFlag}
+              <span style="font-size:0.9rem">${o.originName} → ${o.destinationName}</span>
             </div>
-            <div class="price">$${s.precio}</div>
+            <div class="price">$${s.price}</div>
           </div>
           <div class="servicio-meta">
-            <span>🕐 ${formatHora(s.fechaSalida)}</span>
-            <span>⏱ ~${s.ruta.duracionHoras}h</span>
-            <span class="${seatsClass}">💺 ${s.asientosDisponibles} asientos</span>
-            <span>📅 ${formatFecha(s.fechaSalida)}</span>
+            <span>🕐 ${formatHora(s.departure)}</span>
+            <span>⏱ ~${o.durationHours}h</span>
+            <span class="${seatsClass}">💺 ${s.availableSeats} asientos</span>
+            <span>📅 ${formatFecha(s.departure)}</span>
           </div>
         </div>
       `;
@@ -566,7 +578,7 @@
   }
 
   function selectServicio(id, el) {
-    selectedServicio = SERVICIOS.find(s => s.id === id);
+    selectedServicio = serviciosCatalogo.find(s => s.serviceId === id);
     document.querySelectorAll('.servicio-card').forEach(c => c.classList.remove('selected'));
     el.classList.add('selected');
     document.getElementById('btnConfirmar').disabled = false;
@@ -575,145 +587,155 @@
 
   function actualizarResumen() {
     if (!selectedServicio) return;
-    const o = PAISES[selectedServicio.ruta.origen];
-    const d = PAISES[selectedServicio.ruta.destino];
+    const o = selectedServicio.route;
+    const d = selectedServicio.route;
 
     document.getElementById('resumenContent').innerHTML = `
       <div class="resumen-item">
         <span class="resumen-item-label">Ruta</span>
-        <span>${o.bandera} → ${d.bandera}</span>
+        <span>${o.originFlag} → ${o.destinationFlag}</span>
       </div>
       <div class="resumen-item">
         <span class="resumen-item-label">Origen</span>
-        <span>${o.nombre}</span>
+        <span>${o.originName}</span>
       </div>
       <div class="resumen-item">
         <span class="resumen-item-label">Destino</span>
-        <span>${d.nombre}</span>
+        <span>${o.destinationName}</span>
       </div>
       <div class="resumen-item">
         <span class="resumen-item-label">Salida</span>
-        <span>${formatHora(selectedServicio.fechaSalida)}</span>
+        <span>${formatHora(selectedServicio.departure)}</span>
       </div>
       <div class="resumen-item">
         <span class="resumen-item-label">Fecha</span>
-        <span>${formatFecha(selectedServicio.fechaSalida)}</span>
+        <span>${formatFecha(selectedServicio.departure)}</span>
       </div>
       <div class="resumen-total">
         <span class="resumen-total-label">Total</span>
-        <span class="price-lg">$${selectedServicio.precio}</span>
+        <span class="price-lg">$${selectedServicio.price}</span>
       </div>
     `;
   }
 
   // Paso 3: Confirmar
   function goStep3() {
-    const o = PAISES[selectedServicio.ruta.origen];
-    const d = PAISES[selectedServicio.ruta.destino];
+    const o = selectedServicio.route;
+    const d = selectedServicio.route;
 
     document.getElementById('resumenConfirm').innerHTML = `
       <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1rem;">
-        <span style="font-size:2rem;">${o.bandera}</span>
+        <span style="font-size:2rem;">${o.originFlag}</span>
         <div>
           <div style="font-family:var(--font-display); font-size:1.1rem; letter-spacing:1px;">
-            ${o.nombre} → ${d.nombre}
+            ${o.originName} → ${o.destinationName}
           </div>
           <div style="color:var(--text-secondary); font-size:0.85rem;">
-            ${formatFecha(selectedServicio.fechaSalida)} · ${formatHora(selectedServicio.fechaSalida)}
+            ${formatFecha(selectedServicio.departure)} · ${formatHora(selectedServicio.departure)}
           </div>
         </div>
-        <div class="price-lg" style="margin-left:auto;">$${selectedServicio.precio}</div>
+        <div class="price-lg" style="margin-left:auto;">$${selectedServicio.price}</div>
       </div>
     `;
 
     document.getElementById('pasajeroInfo').innerHTML = `
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; font-size:0.9rem;">
         <div><span style="color:var(--text-muted); font-size:0.75rem;">Pasajero</span><br>
-          <strong>${SESSION_USER.nombre}</strong></div>
+          <strong>${currentUser.nombre}</strong></div>
         <div><span style="color:var(--text-muted); font-size:0.75rem;">Correo</span><br>
-          <strong>${SESSION_USER.correo || '—'}</strong></div>
+          <strong>${currentUser.correo || '—'}</strong></div>
       </div>
     `;
   }
 
   // Paso 4: Realizar compra
-  function realizarCompra() {
+  async function realizarCompra() {
     const btn = document.getElementById('btnComprar');
     btn.innerHTML = '<span class="spinner"></span> Procesando pago...';
     btn.disabled = true;
-
-    // ── MOCK: Simular compra ────────────────────────────
-    // TODO: Reemplazar con fetch('/api/compras', { method: 'POST', ... })
-    setTimeout(() => {
-      const codigo = generarCodigoTicket();
-      const o = PAISES[selectedServicio.ruta.origen];
-      const d = PAISES[selectedServicio.ruta.destino];
-
-      const compra = {
-        id: Date.now(),
-        fecha: new Date(),
-        tickets: [{
-          codigo,
-          servicio: selectedServicio,
-          precio: selectedServicio.precio,
-        }]
+    try {
+      const seatId = await resolveSeatId();
+      const purchasePayload = {
+        servicioId: selectedServicio.serviceId,
+        asientoIds: [seatId],
+        canalCompra: 'WEB',
+        codigoOperacionExterna: `WEB-${Date.now()}`,
       };
+      const purchaseResponse = await ApiClient.post('/api/purchases', purchasePayload);
+      lastReceiptId = purchaseResponse.comprobanteId;
 
-      COMPRAS.push(compra);
-      localStorage.setItem('compras', JSON.stringify(COMPRAS));
-      document.getElementById('limiteDisplay').textContent = `${ticketsComprados()} / 5`;
-
-      document.getElementById('ticketGenerado').innerHTML = `
-        <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1rem;">
-          <span style="font-size:2rem;">🎫</span>
-          <div>
-            <div style="font-family:var(--font-display); font-size:1.1rem; letter-spacing:1px;">TIQUETE DE VIAJE</div>
-            <div style="color:var(--text-muted); font-size:0.8rem;">Emitido el ${formatFecha(new Date())}</div>
-          </div>
-          <div class="badge badge-green" style="margin-left:auto;">✓ VÁLIDO</div>
-        </div>
-
-        <div class="ticket-code">${codigo}</div>
-
-        <div class="ticket-info-grid">
-          <div class="ticket-info-item">
-            <label>Pasajero</label>
-            <span>${SESSION_USER.nombre}</span>
-          </div>
-          <div class="ticket-info-item">
-            <label>Precio</label>
-            <span class="text-gold">$${selectedServicio.precio}</span>
-          </div>
-          <div class="ticket-info-item">
-            <label>Origen</label>
-            <span>${o.bandera} ${o.nombre}</span>
-          </div>
-          <div class="ticket-info-item">
-            <label>Destino</label>
-            <span>${d.bandera} ${d.nombre}</span>
-          </div>
-          <div class="ticket-info-item">
-            <label>Fecha</label>
-            <span>${formatFecha(selectedServicio.fechaSalida)}</span>
-          </div>
-          <div class="ticket-info-item">
-            <label>Hora de salida</label>
-            <span>${formatHora(selectedServicio.fechaSalida)}</span>
-          </div>
-        </div>
-
-        <p class="text-muted mt-3" style="font-size:0.8rem; text-align:center;">
-          Presenta este código al abordar el bus
-        </p>
-      `;
-
+      const receipt = await ApiClient.get(`/api/purchases/receipts/${purchaseResponse.comprobanteId}`);
+      renderReceipt(receipt);
+      document.getElementById('limiteDisplay').textContent = `1 / 5`;
       goStep(4);
-    }, 1800);
+    } catch (error) {
+      mostrarAlerta(error.message || 'No se pudo completar la compra.', 'error');
+      btn.disabled = false;
+      btn.innerHTML = '🔒 Confirmar y Pagar';
+    }
+  }
+
+  async function resolveSeatId() {
+    const response = await ApiClient.get(`/api/fleet/buses/1/seats`);
+    if (!response || response.length === 0) {
+      throw new Error('No hay asientos disponibles.');
+    }
+    return response[0].id;
+  }
+
+  function renderReceipt(receipt) {
+    const ticket = receipt.tickets[0];
+    document.getElementById('ticketGenerado').innerHTML = `
+      <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1rem;">
+        <span style="font-size:2rem;">🎫</span>
+        <div>
+          <div style="font-family:var(--font-display); font-size:1.1rem; letter-spacing:1px;">TIQUETE DE VIAJE</div>
+          <div style="color:var(--text-muted); font-size:0.8rem;">Emitido el ${formatFecha(receipt.fechaEmision)}</div>
+        </div>
+        <div class="badge badge-green" style="margin-left:auto;">✓ VÁLIDO</div>
+      </div>
+
+      <div class="ticket-code">${ticket.codigo}</div>
+
+      <div class="ticket-info-grid">
+        <div class="ticket-info-item">
+          <label>Pasajero</label>
+          <span>${receipt.clienteNombre}</span>
+        </div>
+        <div class="ticket-info-item">
+          <label>Precio</label>
+          <span class="text-gold">$${ticket.precio}</span>
+        </div>
+        <div class="ticket-info-item">
+          <label>Origen</label>
+          <span>${selectedServicio.route.originFlag} ${selectedServicio.route.originName}</span>
+        </div>
+        <div class="ticket-info-item">
+          <label>Destino</label>
+          <span>${selectedServicio.route.destinationFlag} ${selectedServicio.route.destinationName}</span>
+        </div>
+        <div class="ticket-info-item">
+          <label>Fecha</label>
+          <span>${formatFecha(ticket.salidaProgramada)}</span>
+        </div>
+        <div class="ticket-info-item">
+          <label>Hora de salida</label>
+          <span>${formatHora(ticket.salidaProgramada)}</span>
+        </div>
+      </div>
+
+      <p class="text-muted mt-3" style="font-size:0.8rem; text-align:center;">
+        Presenta este código al abordar el bus
+      </p>
+    `;
   }
 
   function descargarPDF() {
-    // TODO: Conectar con /api/compras/{id}/pdf del backend
-    alert('📄 El PDF se generará desde el backend (Spring Boot). Esta función estará disponible una vez integrado el servidor.');
+    if (!lastReceiptId) {
+      alert('No hay comprobante para descargar.');
+      return;
+    }
+    window.open(`/api/purchases/receipts/${lastReceiptId}/pdf`, '_blank');
   }
 
   // Override goStep para paso 3
@@ -723,7 +745,30 @@
     if (n === 3) goStep3();
   };
 
-  poblarPaises();
+  async function inicializar() {
+    try {
+      rutasCatalogo = await ApiClient.get('/api/routes/catalog');
+      poblarPaises(rutasCatalogo);
+    } catch (error) {
+      alert('No se pudo cargar el catálogo inicial.');
+    }
+  }
+
+  function mostrarAlerta(mensaje, tipo) {
+    const container = document.getElementById('alertContainer');
+    if (container) {
+      container.innerHTML = `<div class="alert alert-${tipo}">${tipo === 'error' ? '⚠️' : '✅'} ${mensaje}</div>`;
+    }
+    if (tipo === 'error') {
+      const limitAlert = document.getElementById('limitAlert');
+      if (limitAlert) {
+        limitAlert.style.display = 'flex';
+        limitAlert.innerHTML = mensaje;
+      }
+    }
+  }
+
+  inicializar();
 </script>
 </body>
 </html>

@@ -1,5 +1,6 @@
 package com.buses.examen.Progra.route.adapter.in.web;
 
+import com.buses.examen.Progra.route.adapter.in.web.dto.response.RouteCatalogResponse;
 import com.buses.examen.Progra.route.adapter.in.web.dto.response.RouteOptionResponse;
 import com.buses.examen.Progra.route.adapter.in.web.dto.response.RouteResponse;
 import com.buses.examen.Progra.route.adapter.in.web.mapper.RouteWebMapper;
@@ -68,5 +69,15 @@ public class RouteController {
                                                  @RequestParam final Long destinationCityId,
                                                  @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) final Instant departureAfter) {
         return routeQueryUseCase.planRoutes(originCityId, destinationCityId, departureAfter).stream().map(mapper::toRouteOptionResponse).toList();
+    }
+
+    /**
+     * Devuelve el catálogo completo de rutas en formato enriquecido para el frontend.
+     *
+     * @return catálogo de rutas para el frontend
+     */
+    @GetMapping("/catalog")
+    public List<RouteCatalogResponse> catalog() {
+        return routeQueryUseCase.catalog().stream().toList();
     }
 }

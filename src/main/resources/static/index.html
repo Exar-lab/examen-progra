@@ -546,51 +546,59 @@
 </div>
 
 <script src="js/mock-data.js"></script>
+<script src="js/api-client.js"></script>
+<script src="js/session.js"></script>
 <script>
   // ── Navbar dinámico según sesión ───────────────────────
   function renderNavActions() {
     const el = document.getElementById('navActions');
-    if (isLoggedIn()) {
+    if (Session.isLoggedIn()) {
+      const user = Session.current();
       el.innerHTML = `
-        <span class="nav-user">👤 <span>${SESSION_USER.nombre}</span></span>
+        <span class="nav-user">👤 <span>${user.nombre}</span></span>
         <a href="compra.html" class="btn btn-secondary btn-sm">Mis Pasajes</a>
-        <button class="btn btn-ghost btn-sm" onclick="logout()">Salir</button>
+        <button class="btn btn-ghost btn-sm" onclick="Session.logout()">Salir</button>
       `;
     }
   }
 
   // ── Renderizar rutas ────────────────────────────────────
-  function renderRoutes() {
+  async function renderRoutes() {
     const grid = document.getElementById('routesGrid');
-    // Mostrar rutas únicas (sin duplicar origen-destino)
-    const seen = new Set();
-    const uniqueRoutes = RUTAS.filter(r => {
-      const key = `${r.origen}-${r.destino}`;
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    });
+    try {
+      const routes = await ApiClient.get('/api/routes/catalog');
+      const seen = new Set();
+      const uniqueRoutes = routes.filter(r => {
+        const key = `${r.originCode}-${r.destinationCode}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
 
-    grid.innerHTML = uniqueRoutes.map(r => {
-      const o = PAISES[r.origen];
-      const d = PAISES[r.destino];
-      return `
+      grid.innerHTML = uniqueRoutes.map(r => `
         <div class="route-card" onclick="window.location.href='horarios.html'">
           <div class="route-flags">
-            ${o.bandera}
+            ${r.originFlag}
             <span class="route-arrow">→</span>
-            ${d.bandera}
+            ${r.destinationFlag}
           </div>
           <div class="route-info">
-            <div class="route-name">${o.nombre} → ${d.nombre}</div>
-            <div class="route-time">Salida: ${r.horario} · ${r.duracionHoras}h aprox.</div>
+            <div class="route-name">${r.originName} → ${r.destinationName}</div>
+            <div class="route-time">Duración: ~${r.durationHours}h</div>
           </div>
           <div class="route-price-col">
-            <div class="price">$${r.precio}</div>
+            <div class="price">$${r.basePrice}</div>
           </div>
         </div>
+      `).join('');
+    } catch (error) {
+      grid.innerHTML = `
+        <div class="empty-state">
+          <div class="icon">⚠️</div>
+          <p>No se pudieron cargar las rutas.</p>
+        </div>
       `;
-    }).join('');
+    }
   }
 
   renderNavActions();

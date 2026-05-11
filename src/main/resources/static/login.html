@@ -154,8 +154,10 @@
 </div>
 
 <script src="js/mock-data.js"></script>
+<script src="js/api-client.js"></script>
+<script src="js/session.js"></script>
 <script>
-  if (isLoggedIn()) window.location.href = 'compra.html';
+  if (Session.isLoggedIn()) window.location.href = 'compra.html';
 
   function showAlert(msg, type = 'error') {
     document.getElementById('alertContainer').innerHTML = `
@@ -163,7 +165,7 @@
     `;
   }
 
-  function handleLogin(e) {
+  async function handleLogin(e) {
     e.preventDefault();
 
     const correo   = document.getElementById('correo').value;
@@ -178,17 +180,25 @@
     btn.innerHTML = '<span class="spinner"></span> Ingresando...';
     btn.disabled = true;
 
-    // ── MOCK: Simular login ─────────────────────────────
-    // TODO: Reemplazar con fetch('/api/auth/login', { method: 'POST', ... })
-    setTimeout(() => {
+    try {
+      await ApiClient.ensureCsrf();
+      const response = await ApiClient.post('/api/auth/login', {
+        username: correo,
+        password,
+      });
+
       const nombre = correo.split('@')[0];
-      guardarSesion({
-        id: Date.now(),
+      Session.save({
+        id: response.clienteId,
         nombre: nombre.charAt(0).toUpperCase() + nombre.slice(1),
         correo,
       });
       window.location.href = 'compra.html';
-    }, 1000);
+    } catch (error) {
+      showAlert(error.message || 'No se pudo iniciar sesión.');
+      btn.disabled = false;
+      btn.innerHTML = 'Iniciar Sesión';
+    }
   }
 </script>
 </body>

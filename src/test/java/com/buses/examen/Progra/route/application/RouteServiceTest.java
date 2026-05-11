@@ -1,5 +1,6 @@
 package com.buses.examen.Progra.route.application;
 
+import com.buses.examen.Progra.route.adapter.in.web.mapper.RouteWebMapper;
 import com.buses.examen.Progra.route.application.port.out.RoutePlannerPort;
 import com.buses.examen.Progra.route.application.port.out.RutaRepositoryPort;
 import com.buses.examen.Progra.route.domain.Ruta;
@@ -20,7 +21,8 @@ class RouteServiceTest {
     void shouldListRoutesAndFindById() {
         final RutaRepositoryPort rutaRepositoryPort = mock(RutaRepositoryPort.class);
         final RoutePlannerPort plannerPort = mock(RoutePlannerPort.class);
-        final RouteService service = new RouteService(rutaRepositoryPort, plannerPort);
+        final RouteWebMapper mapper = mock(RouteWebMapper.class);
+        final RouteService service = new RouteService(rutaRepositoryPort, plannerPort, mapper);
 
         final Ruta ruta = mock(Ruta.class);
         when(rutaRepositoryPort.findAll()).thenReturn(List.of(ruta));
@@ -34,7 +36,8 @@ class RouteServiceTest {
     void shouldDelegateRoutePlanning() {
         final RutaRepositoryPort rutaRepositoryPort = mock(RutaRepositoryPort.class);
         final RoutePlannerPort plannerPort = mock(RoutePlannerPort.class);
-        final RouteService service = new RouteService(rutaRepositoryPort, plannerPort);
+        final RouteWebMapper mapper = mock(RouteWebMapper.class);
+        final RouteService service = new RouteService(rutaRepositoryPort, plannerPort, mapper);
 
         final RoutePlannerPort.RouteOption option = new RoutePlannerPort.RouteOption(1L, 2L, 95);
         when(plannerPort.findBestRoutes(10L, 20L, Instant.EPOCH)).thenReturn(List.of(option));

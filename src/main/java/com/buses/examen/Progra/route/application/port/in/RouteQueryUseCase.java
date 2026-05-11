@@ -35,4 +35,12 @@ public interface RouteQueryUseCase {
      * @return opciones de ruta recomendadas
      */
     List<RoutePlannerPort.RouteOption> planRoutes(Long originCityId, Long destinationCityId, Instant departureAfter);
+
+    /**
+     * Devuelve todas las rutas en formato enriquecido para el catálogo del frontend.
+     * Cada ruta incluye datos del país origen/destino, duración y precio base.
+     *
+     * @return catálogo de rutas para el frontend
+     */
+    List<com.buses.examen.Progra.route.adapter.in.web.dto.response.RouteCatalogResponse> catalog();
 }

@@ -37,4 +37,11 @@ public class Ciudad {
      * @return id generado por la base de datos
      */
     public Long getId() { return id; }
+
+    /**
+     * Devuelve el país al que pertenece la ciudad.
+     *
+     * @return país
+     */
+    public Pais getPais() { return pais; }
 }

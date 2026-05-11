@@ -1,5 +1,6 @@
 package com.buses.examen.Progra.service.adapter.in.web;
 
+import com.buses.examen.Progra.service.adapter.in.web.dto.response.ServiceCatalogResponse;
 import com.buses.examen.Progra.service.adapter.in.web.dto.response.ServiceResponse;
 import com.buses.examen.Progra.service.adapter.in.web.mapper.ServiceWebMapper;
 import com.buses.examen.Progra.service.application.port.in.ServiceQueryUseCase;
@@ -59,5 +60,20 @@ public class ServiceController {
     public ServiceResponse findServiceById(@PathVariable final Long servicioId) {
         return serviceQueryUseCase.findServiceById(servicioId).map(mapper::toResponse)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Servicio no encontrado"));
+    }
+
+    /**
+     * Devuelve el catálogo de servicios en formato enriquecido para el frontend.
+     *
+     * @param rutaId identificador de la ruta (opcional)
+     * @param start fecha inicial de la ventana
+     * @param end fecha final de la ventana
+     * @return catálogo de servicios para el frontend
+     */
+    @GetMapping("/catalog")
+    public List<ServiceCatalogResponse> catalog(@RequestParam(required = false) final Long rutaId,
+                                                @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) final OffsetDateTime start,
+                                                @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) final OffsetDateTime end) {
+        return serviceQueryUseCase.catalog(rutaId, start, end).stream().toList();
     }
 }

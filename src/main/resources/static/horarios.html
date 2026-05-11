@@ -239,26 +239,39 @@
 </footer>
 
 <script src="js/mock-data.js"></script>
+<script src="js/api-client.js"></script>
+<script src="js/session.js"></script>
 <script>
+  let rutasCatalogo = [];
+
   function renderNavActions() {
     const el = document.getElementById('navActions');
-    if (isLoggedIn()) {
+    if (Session.isLoggedIn()) {
+      const user = Session.current();
       el.innerHTML = `
-        <span class="nav-user">👤 <span>${SESSION_USER.nombre}</span></span>
+        <span class="nav-user">👤 <span>${user.nombre}</span></span>
         <a href="compra.html" class="btn btn-secondary btn-sm">Comprar</a>
-        <button class="btn btn-ghost btn-sm" onclick="logout()">Salir</button>
+        <button class="btn btn-ghost btn-sm" onclick="Session.logout()">Salir</button>
       `;
     }
   }
 
-  function poblarFiltros() {
+  function poblarFiltros(rutas) {
     const origenSel = document.getElementById('filterOrigen');
     const destinoSel = document.getElementById('filterDestino');
-    const paises = Object.entries(PAISES);
-
-    paises.forEach(([cod, p]) => {
-      origenSel.innerHTML  += `<option value="${cod}">${p.bandera} ${p.nombre}</option>`;
-      destinoSel.innerHTML += `<option value="${cod}">${p.bandera} ${p.nombre}</option>`;
+    const seen = new Set();
+    rutas.forEach((ruta) => {
+      if (!seen.has(ruta.originCode)) {
+        origenSel.innerHTML += `<option value="${ruta.originCode}">${ruta.originFlag} ${ruta.originName}</option>`;
+        seen.add(ruta.originCode);
+      }
+    });
+    const seenDest = new Set();
+    rutas.forEach((ruta) => {
+      if (!seenDest.has(ruta.destinationCode)) {
+        destinoSel.innerHTML += `<option value="${ruta.destinationCode}">${ruta.destinationFlag} ${ruta.destinationName}</option>`;
+        seenDest.add(ruta.destinationCode);
+      }
     });
   }
 
@@ -267,10 +280,10 @@
     const destino = document.getElementById('filterDestino').value;
     const precio  = document.getElementById('filterPrecio').value;
 
-    let rutas = [...RUTAS];
-    if (origen)  rutas = rutas.filter(r => r.origen  === origen);
-    if (destino) rutas = rutas.filter(r => r.destino === destino);
-    if (precio)  rutas = rutas.filter(r => r.precio <= Number(precio));
+    let rutas = [...rutasCatalogo];
+    if (origen)  rutas = rutas.filter(r => r.originCode === origen);
+    if (destino) rutas = rutas.filter(r => r.destinationCode === destino);
+    if (precio)  rutas = rutas.filter(r => Number(r.basePrice) <= Number(precio));
 
     renderRutas(rutas);
   }
@@ -289,24 +302,21 @@
     }
 
     el.innerHTML = rutas.map(r => {
-      const o = PAISES[r.origen];
-      const d = PAISES[r.destino];
-      const loginLink = isLoggedIn() ? 'compra.html' : 'login.html';
-
+      const loginLink = Session.isLoggedIn() ? 'compra.html' : 'login.html';
       return `
         <div class="ruta-row">
           <div class="route-flags-cell">
-            <span>${o.bandera}</span>
+            <span>${r.originFlag}</span>
             <span style="color:var(--text-muted); font-size:0.9rem;">→</span>
-            <span>${d.bandera}</span>
+            <span>${r.destinationFlag}</span>
           </div>
           <div>
-            <div class="route-name-cell">${o.nombre} → ${d.nombre}</div>
-            <div class="route-name-sub">${r.origen} → ${r.destino}</div>
+            <div class="route-name-cell">${r.originName} → ${r.destinationName}</div>
+            <div class="route-name-sub">${r.originCode} → ${r.destinationCode}</div>
           </div>
-          <div><span class="horario-badge">${r.horario}</span></div>
-          <div class="duration-cell">~${r.duracionHoras}h</div>
-          <div class="price">$${r.precio}</div>
+          <div><span class="horario-badge">—</span></div>
+          <div class="duration-cell">~${r.durationHours}h</div>
+          <div class="price">$${r.basePrice}</div>
           <div>
             <a href="${loginLink}" class="btn btn-primary btn-sm">Comprar →</a>
           </div>
@@ -315,9 +325,23 @@
     }).join('');
   }
 
-  poblarFiltros();
+  async function cargarCatalogo() {
+    try {
+      rutasCatalogo = await ApiClient.get('/api/routes/catalog');
+      poblarFiltros(rutasCatalogo);
+      renderRutas(rutasCatalogo);
+    } catch (error) {
+      document.getElementById('rutasList').innerHTML = `
+        <div class="empty-state">
+          <div class="icon">⚠️</div>
+          <p>No se pudo cargar el catálogo.</p>
+        </div>
+      `;
+    }
+  }
+
   renderNavActions();
-  renderRutas(RUTAS);
+  cargarCatalogo();
 </script>
 </body>
 </html>

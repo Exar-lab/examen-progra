@@ -1,5 +1,6 @@
 package com.buses.examen.Progra.service.application;
 
+import com.buses.examen.Progra.route.adapter.in.web.mapper.RouteWebMapper;
 import com.buses.examen.Progra.service.application.port.out.ServicioRepositoryPort;
 import com.buses.examen.Progra.service.domain.Servicio;
 import org.junit.jupiter.api.Test;
@@ -18,7 +19,8 @@ class ServiceServiceTest {
     @Test
     void shouldListServicesForRouteAndFindById() {
         final ServicioRepositoryPort servicioRepositoryPort = mock(ServicioRepositoryPort.class);
-        final ServiceService service = new ServiceService(servicioRepositoryPort);
+        final RouteWebMapper routeWebMapper = mock(RouteWebMapper.class);
+        final ServiceService service = new ServiceService(servicioRepositoryPort, routeWebMapper);
 
         final Servicio servicio = mock(Servicio.class);
         final OffsetDateTime start = OffsetDateTime.now();
