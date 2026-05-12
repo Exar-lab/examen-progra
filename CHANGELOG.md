@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.6.0](https://github.com/Exar-lab/examen-progra/compare/v1.5.1...v1.6.0) (2026-05-11)
+
+
+### Features
+
+* **data:** add preload clients with user credentials ([2f00b08](https://github.com/Exar-lab/examen-progra/commit/2f00b085dbf61173c607354f8b09656edb77ac4d))
+
+
+### Bug Fixes
+
+* cambiar campo correo por username en login ([859426d](https://github.com/Exar-lab/examen-progra/commit/859426d09afe89a0b01a3006bcd19c5c761b210b))
+* ignorar CSRF en endpoints de API publica ([e8bacc9](https://github.com/Exar-lab/examen-progra/commit/e8bacc9e42303f01c9dae2bb016eb1da81f02fd9))
+* improve purchase and registration flows ([22a85d1](https://github.com/Exar-lab/examen-progra/commit/22a85d18ae8500845cf6a0a2a530e0e99b5c8b7a))
+* separate tickets view from checkout flow ([d842039](https://github.com/Exar-lab/examen-progra/commit/d8420393140695aadd07166ec7ec3fbd7090d806))
+
+
+### Documentation
+
+* update README with current flow ([ddd8706](https://github.com/Exar-lab/examen-progra/commit/ddd8706e92985a08967804a8d56cd5bbd23d377f))
+
 ## [1.5.1](https://github.com/Exar-lab/examen-progra/compare/v1.5.0...v1.5.1) (2026-05-11)
 
 
